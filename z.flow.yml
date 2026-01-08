@@ -1,0 +1,104 @@
+# Roles based access control
+
+# Models Which can be used
+role:
+  - id
+  - name
+  - user[] # relation with user
+
+  - created_at
+  - deleted_at
+user:
+  - id
+  - first_name
+  - last_name
+  - email
+  - password
+  - username
+  - role_id
+  - role # relation with role
+  - category[] #relation with category
+
+  - created_at
+  - deleted_at
+category:
+  - id
+  - user_id
+  - category_name
+  - slug
+  - is_deleted
+
+  - created_at
+  - deleted_at
+
+  - user #relation with user
+user_devices:
+  - id
+  - user_id
+  - device_id
+  - device_type
+  - access_token
+  - refresh_token
+
+permission:
+  - role
+  - resource (user,category,subcategory)
+  - action that they perform(read,create update delete )
+
+# i want access API's on the basis of Role (ADMIN | USER)
+routes:
+  - user.public.routes.ts
+  - user.protected.routes.ts
+  - category.protected.routes.ts
+controller:
+  - user.controller.ts
+  - category.controller.ts
+services:
+  - user.services.ts
+  - category.services.ts
+middleware:
+  token.manager:
+    - generateAccessToken
+    - generateRefreshToken
+    - verifyToken
+  require.role:
+    - Import types (Roles,Permission) from roles.types.ts
+    - Create function "hasPermission" which can ensure us the user has permission to access this route
+    - Create function "authorize" which can be use in routes with parameter (Permissoin)...
+    - ... eg('USER' | 'ADMIN') and call "hasPermission" function
+  Error Handling:
+    - 401 Unauthorized:
+        - When: Access token is missing, invalid, or expired
+
+    - 403 Forbidden:
+        - When: User does not have permission for this route/action
+    - Global Error Handler:
+        - Catch all other errors
+        - response: 500 as internal server error
+validations:
+  - Validate all the input data from user if return true then next function runs otherwise throw error
+  - And that all error handled by global validation error handler middleware "validateResult"
+
+# flow
+Flow:
+  - While "SIGNUP" we defult assign "USER" role by fetching role.id on the base of role name "USER"
+  - While user "LOGIN" we generate token with payload { id,role }
+  - ... and then all the routes are protected and go through under "verifyToken" middleware which verify user and...
+  - ... attach "tokenUser" key with req with playload {id,role}
+
+  - Then the in the routes we authenticate the user have that route permission which they are trying to access ...
+  - ... on the base of role ('USER' | 'ADMIN')
+
+
+# const user = await prisma.user.findUnique({
+#   where: { id: req.key.id },
+#   include: {
+#     role: { include: { permissions: true } }
+#   }
+# });
+
+# const canCreateProduct = user.role.permissions.some(
+#   p => p.resource === 'product' && p.action === 'create'
+# );
+
+# if (!canCreateProduct) throw new Error('Access denied');

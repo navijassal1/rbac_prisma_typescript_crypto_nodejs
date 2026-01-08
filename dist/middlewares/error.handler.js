@@ -1,0 +1,21 @@
+/**
+ * @description Express global error handler middleware
+ * Catches all errors thrown in routes and sends a standardized response
+ * @param {any} err - The error object thrown in route or middleware
+ * @param {Request} req - Express request object
+ * @param {Response} res - Express response object
+ * @param {NextFunction} next - Express next middleware function
+ * @returns {Response} Sends an HTTP response with status code and message
+ */
+export const errorHandler = (err, req, res, next) => {
+    // Log the error to console for debugging
+    console.error(err);
+    // Use error status if available, otherwise default to 500 (Internal Server Error)
+    const status = err.status || 500;
+    // Send a standardized error response
+    return res.status(status).json({
+        success: false,
+        message: 'Something went wrong'
+    });
+};
+//# sourceMappingURL=error.handler.js.map

@@ -1,0 +1,13 @@
+model Category {
+  id        Int      @id @default(autoincrement())
+  user_id    Int
+  category_name      String
+  slug      String
+  created_at  DateTime @default(now())
+  deleted_at  DateTime?
+  is_deleted Boolean  @default(false)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([user_id])
+}

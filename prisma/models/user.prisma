@@ -1,0 +1,14 @@
+model User {
+  id         Int      @id @default(autoincrement())
+  first_name  String
+  last_name   String
+  username   String   @unique
+  email      String   @unique
+  password   String
+  created_at  DateTime @default(now())
+  
+  roles        User_Role[]
+  permissions  User_permission[]
+  categories   Category[]
+  devices      User_device[]
+}

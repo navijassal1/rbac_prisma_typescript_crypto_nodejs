@@ -16,8 +16,8 @@ export const encrytPayload = (payload: object): string => {
 }
 export const decryptedPayload = (encryptedPayload: string): any => {
 
-    console.log('encryptedPayload',encryptedPayload)
-    console.log('CRYPTO.ENCRYPTION_KEY',CRYPTO.ENCRYPTION_KEY)
+    // console.log('encryptedPayload',encryptedPayload)
+    // console.log('CRYPTO.ENCRYPTION_KEY',CRYPTO.ENCRYPTION_KEY)
     const [IVBase64, encrypted] = encryptedPayload.split(':')
 
     if (!IVBase64 || !encrypted) throw new Error('Invalid payload');
@@ -26,13 +26,13 @@ export const decryptedPayload = (encryptedPayload: string): any => {
 
     const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY_BUFFER, iv)
 
-    console.log([decipher], 'decipher')
+    // console.log([decipher], 'decipher')
 
     let decrypted = decipher.update(encrypted, 'base64', 'utf8')
 
     decrypted += decipher.final('utf8')
 
-    console.log([decrypted], 'decrypted')
+    // console.log([decrypted], 'decrypted')
 
     return JSON.parse(decrypted)
 }

@@ -65,8 +65,8 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next) => {
         // Verify JWT token
         const decoded = await jwt.verify(token, JWT.SECRET_KEY) as { data: string };
 
-        console.log(typeof decoded)
-        console.log(decoded, 'token')
+        // console.log(typeof decoded)
+        // console.log(decoded, 'token')
         if (!decoded || typeof decoded === 'string') return unauthorized(res); // payload should be object
 
         const originalPayload:{id:number} = decryptedPayload(decoded.data)
@@ -109,7 +109,6 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next) => {
                 return unauthorized(res);
             }
         }
-
         // Catch-all for other unexpected errors
         return unauthorized(res);
     }

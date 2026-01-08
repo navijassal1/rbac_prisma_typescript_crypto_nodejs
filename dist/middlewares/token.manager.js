@@ -52,8 +52,8 @@ export const verifyToken = async (req, res, next) => {
             return unauthorized(res);
         // Verify JWT token
         const decoded = await jwt.verify(token, JWT.SECRET_KEY);
-        console.log(typeof decoded);
-        console.log(decoded, 'token');
+        // console.log(typeof decoded)
+        // console.log(decoded, 'token')
         if (!decoded || typeof decoded === 'string')
             return unauthorized(res); // payload should be object
         const originalPayload = decryptedPayload(decoded.data);

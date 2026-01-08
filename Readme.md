@@ -1,20 +1,72 @@
 # Project Name
 
-A short description of your project (e.g., "A TypeScript backend with Prisma and MariaDB").
+A CRUD application using **TypeScript**, **Prisma**, and **MariaDB**, featuring **token-based authentication** with **Crypto** and **role-based access control (RBAC)**.
 
 ---
 
 ## Table of Contents
 
-- [Project Setup](#project-setup)  
-- [Environment Variables](#environment-variables)  
-- [Database Setup](#database-setup)  
-- [Scripts](#scripts)  
-- [Running the Project](#running-the-project)  
-- [Prisma Commands](#prisma-commands)  
+- [About the Project](#about-the-project)  
+- [Technologies Used](#technologies-used)  
+- [Features](#features)  
+- [Getting Started](#getting-started)  
+  - [Prerequisites](#prerequisites)  
+  - [Installation](#installation)  
+  - [Environment Variables](#environment-variables)  
+  - [Running the Project](#running-the-project)  
+- [Project Structure](#project-structure)  
+- [API Endpoints](#api-endpoints)  
+- [Contributing](#contributing)  
 - [License](#license)
 
 ---
+
+## About the Project
+
+This project is a **CRUD (Create, Read, Update, Delete) application** built with **TypeScript** and **Prisma**. It uses **MariaDB** as the database and implements:
+
+- **Token-based authentication** using **Crypto** for secure token generation  
+- **Role-Based Access Control (RBAC)** for managing user permissions  
+- Clean and scalable code structure using TypeScript  
+
+---
+
+## Technologies Used
+
+- **TypeScript** – Strongly typed JavaScript for safer and cleaner code  
+- **Prisma** – Modern ORM for database access  
+- **MariaDB** – Relational database  
+- **Node.js & Express** – Backend server and routing  
+- **Crypto** – For secure token creation  
+- **JWT (JSON Web Token)** – For authentication  
+
+---
+
+## Features
+
+- User registration and login  
+- Secure token-based authentication  
+- Role-based access control for routes  
+- CRUD operations on resources  
+- Database management using Prisma ORM  
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18 or higher)  
+- [MariaDB](https://mariadb.org/)  
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)  
+
+---
+
+### Installation
+
+1. Clone the repository:  
+```bash
+git clone https://github.com/yourusername/project-name.git
 
 ## Project Setup
 

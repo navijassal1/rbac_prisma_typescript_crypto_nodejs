@@ -62,12 +62,6 @@ This project is a **CRUD (Create, Read, Update, Delete) application** built with
 
 ---
 
-### Installation
-
-1. Clone the repository:  
-```bash
-git clone https://github.com/yourusername/project-name.git
-
 ## Project Setup
 
 Follow these commands to set up the project from scratch:

@@ -12,6 +12,7 @@ export var STATUS;
     STATUS[STATUS["SERVER_ERROR"] = 500] = "SERVER_ERROR";
     STATUS[STATUS["BAD_REQUEST"] = 400] = "BAD_REQUEST";
     STATUS[STATUS["CONFLICT"] = 409] = "CONFLICT";
+    STATUS[STATUS["FORBIDDEN"] = 403] = "FORBIDDEN"; // Conflict (e.g., duplicate resource)
 })(STATUS || (STATUS = {}));
 /**
  * User roles in the system.

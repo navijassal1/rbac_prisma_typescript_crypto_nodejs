@@ -1,11 +1,6 @@
 import type { SignupReqParams, LoginDeviceParams, UpdateTargetUserParams, ChangeTargetUserPasswordParams, JwtPayload, RefreshTokenParams } from "../types/user.types.js";
 import type { serviceResponse, TargetParams } from '../types/common.types.js';
 /**
- * @description Fetch all users from the database
- * @returns {Promise<serviceResponse>} - Returns success status, message, and user list if exists
- */
-export declare const listUsersService: () => Promise<serviceResponse>;
-/**
  * @description Create a new user with hashed password, assigned role, and permissions
  * @param {SignupReqParams} reqBody - User registration details
  * @returns {Promise<serviceResponse>} - Returns success status and message

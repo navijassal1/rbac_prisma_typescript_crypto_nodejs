@@ -3,31 +3,6 @@ import prisma from '../lib/prisma.client.js';
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../middlewares/token.manager.js";
 /**
- * @description Fetch all users from the database
- * @returns {Promise<serviceResponse>} - Returns success status, message, and user list if exists
- */
-export const listUsersService = async () => {
-    try {
-        const listUsers = await prisma.user.findMany({
-            select: {
-                id: true,
-                first_name: true,
-                last_name: true,
-                username: true,
-                email: true,
-            }
-        });
-        if (listUsers.length === 0) {
-            return { success: false, message: "Users do not exist currently" };
-        }
-        return { success: true, message: "List of users", data: listUsers };
-    }
-    catch (error) {
-        // Re-throw the error to be handled by a global error handler
-        throw error;
-    }
-};
-/**
  * @description Create a new user with hashed password, assigned role, and permissions
  * @param {SignupReqParams} reqBody - User registration details
  * @returns {Promise<serviceResponse>} - Returns success status and message

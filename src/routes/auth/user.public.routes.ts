@@ -4,9 +4,6 @@ import { Router } from "express";
 // Import controller functions for user authentication
 import { signUp, login ,refreshAccessToken} from "../../controllers/user.controller.js";
 
-// Middleware to handle validation result errors
-import { validateResult } from "../../utils/validation.result.middleware.js";
-
 // Import request validation rules for signup and login
 import {
   signupValidation,
@@ -24,7 +21,6 @@ const userPublicRouter = Router();
 userPublicRouter.post(
   "/signup",
   signupValidation,
-  validateResult,
   signUp
 );
 
@@ -35,7 +31,6 @@ userPublicRouter.post(
 userPublicRouter.post(
   "/login",
   loginValidation,
-  validateResult,
   login
 );
 
@@ -46,7 +41,6 @@ userPublicRouter.post(
 userPublicRouter.get(
   "/refresh-token",
   refreshTokenValidation,
-  validateResult,
   refreshAccessToken
 );
 // Export router to be used in the main app

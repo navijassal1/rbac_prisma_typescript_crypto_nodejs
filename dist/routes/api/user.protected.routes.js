@@ -1,7 +1,7 @@
 // Import Router from Express to define protected user routes
 import { Router } from "express";
 // Import controller functions for user management
-import { listUsers, userDetails, updateUser, deleteUser, changePassword } from "../../controllers/user.controller.js";
+import { userDetails, updateUser, deleteUser, changePassword } from "../../controllers/user.controller.js";
 // Import middleware to validate request body results
 import { validateResult } from "../../utils/validation.result.middleware.js";
 // Import user-specific validations and utility middleware
@@ -18,15 +18,11 @@ import { Resource, Action } from "../../enums/enums.js";
 const userProtectedRouter = Router();
 // All routes below require a valid JWT token
 userProtectedRouter.use(verifyToken);
-// Route: List all users
-// Permissions: SYSTEM resource, READ action
-// Endpoint: GET /api/users/list-users
-userProtectedRouter.get("/list-users", authorize([Resource.USER], [Action.READ]), listUsers);
 // Route: Update a user
 // Permissions: USER resource, CREATE action
 // Middleware attachTargetUser ensures we know which user is being updated
 // Endpoint: PUT /api/users/:username
-userProtectedRouter.put("/:username", authorize([Resource.USER], [Action.CREATE]), attachTargetUser, updateUser);
+userProtectedRouter.put("/:username", authorize([Resource.USER], [Action.UPDATE]), attachTargetUser, updateUser);
 // Route: Get user details of the current user
 // Permissions: USER resource, READ action
 // Endpoint: GET /api/users/user-details

@@ -1,5 +1,5 @@
 import type { ResponseParams, unauthorizedResponseParams } from "../types/common.types.js";
-
+import {STATUS} from "../enums/enums.js"
 /**
  * Sends a structured JSON response.
  * @param res - Express response object
@@ -9,38 +9,35 @@ import type { ResponseParams, unauthorizedResponseParams } from "../types/common
  * @param data - Optional payload data
  * @returns Express JSON response
  */
-export const response: ResponseParams = (res, status, success, message, data) => {
+export const response: ResponseParams = (res, status, success, message, data):object => {
     return res.status(status).json({
         success,
         message,
         data
     });
 };
-
 /**
  * Sends a 401 Unauthorized response.
  * @param res - Express response object
  * @returns Express JSON response with unauthorized message
  */
-export const unauthorized: unauthorizedResponseParams = (res) => {
-    return res.status(401).json({
+export const unauthorized: unauthorizedResponseParams = (res):object => {
+    return res.status(STATUS.UNAUTHORIZED).json({
         success: false,
         message: "unauthorized",
     });
 };
-
 /**
  * Sends a 403 Forbidden response.
  * @param res - Express response object
  * @returns Express JSON response with forbidden message
  */
-export const forbidden: unauthorizedResponseParams = (res) => {
-    return res.status(403).json({
+export const forbidden: unauthorizedResponseParams = (res):object => {
+    return res.status(STATUS.FORBIDDEN).json({
         success: false,
         message: "Access forbidden"
     });
 };
-
 /**
  * Reads a required environment variable as a string.
  * Throws an error if the variable is missing or empty.
@@ -54,7 +51,6 @@ export function getRequiredEnvString(key: string): string {
     }
     return value;
 }
-
 /**
  * Reads an optional environment variable as a string.
  * Returns a default value if the variable is not set.
@@ -65,7 +61,6 @@ export function getRequiredEnvString(key: string): string {
 export function getOptionalEnvString(key: string, defaultValue = ""): string {
     return process.env[key] ?? defaultValue;
 }
-
 /**
  * Reads a required environment variable as a number.
  * Throws an error if the variable is missing or cannot be converted to a number.

@@ -8,6 +8,7 @@ import type { Resource, Action } from "../enums/enums.js";
 
 // Prisma client for database access
 import prisma from "../lib/prisma.client.js";
+import type { TokenUserParams } from "../types/user.types.js";
 
 /**
  * Role-Based Access Control (RBAC) middleware
@@ -18,6 +19,7 @@ import prisma from "../lib/prisma.client.js";
  */
 export const authorize = (allowedResources: Resource[], allowedActions: Action[]) =>
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log("----------START-----------");
     // The authenticated user should be attached to req.tokenUser by previous JWT middleware
     const user = req.tokenUser;
 
@@ -27,9 +29,6 @@ export const authorize = (allowedResources: Resource[], allowedActions: Action[]
     console.log(allowedActions, "allowedActions\n");
 
     // If no authenticated user is found, return 401 Unauthorized
-    if (!user) {
-      return unauthorized(res);
-    }
 
     // Query user permissions from the database
     // Only fetch permissions matching allowed resources and actions

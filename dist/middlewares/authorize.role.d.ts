@@ -7,5 +7,5 @@ import type { Resource, Action } from "../enums/enums.js";
  * @param allowedActions - list of actions the user can perform
  * @returns Express middleware function
  */
-export declare const authorize: (allowedResources: Resource[], allowedActions: Action[]) => (req: Request, res: Response, next: NextFunction) => Promise<any>;
+export declare const authorize: (allowedResources: Resource[], allowedActions: Action[]) => (req: Request, res: Response, next: NextFunction) => Promise<object | undefined>;
 //# sourceMappingURL=authorize.role.d.ts.map

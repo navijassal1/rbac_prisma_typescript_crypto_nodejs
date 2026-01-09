@@ -1,3 +1,4 @@
+import { STATUS } from '../enums/enums.js'
 import type { ErrorHandlerParams } from '../types/common.types.js'
 
 /**
@@ -9,15 +10,14 @@ import type { ErrorHandlerParams } from '../types/common.types.js'
  * @param {NextFunction} next - Express next middleware function
  * @returns {Response} Sends an HTTP response with status code and message
  */
-export const errorHandler: ErrorHandlerParams = (err, req, res, next) => {
+export const errorHandler: ErrorHandlerParams = (err, res):object => {
     // Log the error to console for debugging
     console.error(err)
 
     // Use error status if available, otherwise default to 500 (Internal Server Error)
-    const status = err.status || 500
 
     // Send a standardized error response
-    return res.status(status).json({ 
+    return res.status(STATUS.SERVER_ERROR).json({ 
         success: false, 
         message: 'Something went wrong' 
     })

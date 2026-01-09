@@ -10,9 +10,6 @@ import {
   deleteCategory
 } from "../../controllers/category.controller.js";
 
-// Import middleware to validate request results
-import { validateResult } from "../../utils/validation.result.middleware.js";
-
 // Import middleware to attach target user to request
 import { attachTargetUser } from "../../validations/user.validations.js";
 
@@ -22,9 +19,6 @@ import {
   attachTargetCategory      // Middleware to attach target category to request
 } from "../../validations/category.validations.js";
 
-// Middleware to verify JWT token
-import { verifyToken } from "../../middlewares/token.manager.js";
-
 // Middleware for role-based access control
 import { authorize } from "../../middlewares/authorize.role.js";
 
@@ -33,9 +27,6 @@ import { Action, Resource, Roles } from "../../enums/enums.js";
 
 // Create router instance for protected category routes
 const categoryProtectedRouter = Router();
-
-// All category routes require authentication
-categoryProtectedRouter.use(verifyToken);
 
 // Automatically attach target user whenever :username param is present
 categoryProtectedRouter.param("username", attachTargetUser);
@@ -57,7 +48,6 @@ categoryProtectedRouter.post(
   "/:username",
   authorize([Resource.CATEGORY], [Action.CREATE]),
   createCategoryValidation,
-  validateResult,
   createCategories
 );
 
@@ -69,7 +59,6 @@ categoryProtectedRouter.get(
   "/:username/:categorySlug",
   authorize([Resource.CATEGORY], [Action.READ]),
   attachTargetCategory,
-  validateResult,
   categoryDetails
 );
 
@@ -81,7 +70,6 @@ categoryProtectedRouter.put(
   "/:username/:categorySlug",
   authorize([Resource.CATEGORY], [Action.UPDATE]),
   attachTargetCategory,
-  validateResult,
   updateCategory
 );
 

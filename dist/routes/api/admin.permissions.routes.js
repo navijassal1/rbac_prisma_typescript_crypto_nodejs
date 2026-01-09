@@ -1,40 +1,97 @@
-// Import Router from Express to define admin permission routes
+/**
+ * Admin Permission Routes
+ * ---------------------------------------------------
+ * This router handles all admin-level RBAC operations:
+ * - Listing users, roles, and permissions
+ * - Viewing user permissions
+ * - Granting roles and permissions
+ *
+ * All routes are protected by JWT authentication
+ * and role-based authorization (RBAC).
+ */
+// ---------------------------------------------------
+// Imports
+// ---------------------------------------------------
+// Express router
 import { Router } from "express";
-// Import controller functions for admin permission management
-import { getPermissions, // List all available permissions
-getUserPermissions, // Get permissions for a specific user
-grantPermissions // Grant permissions to a user
+// Controllers for admin permission management
+import { listUsers, // Fetch all users
+listPermissions, // Fetch all available permissions
+listRoles, // Fetch all available roles
+getUserPermissions, // Fetch permissions for a specific user
+grantPermissions, // Assign permissions to a user
+grantRoles // Assign roles to a user
  } from "../../controllers/admin.permissions.controller.js";
-// Import middleware to verify JWT token
+// JWT authentication middleware
 import { verifyToken } from "../../middlewares/token.manager.js";
-// Import enums for RBAC: resources and actions
+// RBAC enums
 import { Resource, Action } from "../../enums/enums.js";
-// Import role-based authorization middleware
+// Authorization middleware (RBAC enforcement)
 import { authorize } from "../../middlewares/authorize.role.js";
-// Import validation and attachment middleware for admin permissions
-import { adminPermissionValidation, // Validation rules for granting permissions
-attachTargetUser // Middleware to attach target user to request
+// Validation and helper middlewares
+import { adminPermissionValidation, // Validation rules for permission assignment
+adminRolesValidation, // Validation rules for role assignment
+attachTargetUser // Attaches target user to request object
  } from "../../validations/admin.permissions.validations.js";
-// Middleware to handle validation errors
+// Middleware to handle validation result errors
 import { validateResult } from "../../utils/validation.result.middleware.js";
-// Create router instance for admin permission routes
+// ---------------------------------------------------
+// Router Initialization
+// ---------------------------------------------------
 const adminPermissionRouter = Router();
-// All routes require a valid JWT token
+// ---------------------------------------------------
+// Global Middleware
+// ---------------------------------------------------
+// All admin permission routes require a valid JWT
 adminPermissionRouter.use(verifyToken);
-// Route: List all permissions in the system
-// Permissions: SYSTEM resource, READ action
-// Endpoint: GET /api/admin/permissions
-adminPermissionRouter.get("/permissions", authorize([Resource.SYSTEM], [Action.READ]), getPermissions);
-// Route: Grant permissions to a user
-// Permissions: SYSTEM resource, CREATE action
-// Validates request body before granting permissions
-// Endpoint: PUT /api/admin/permissions
-adminPermissionRouter.put("/permissions", authorize([Resource.SYSTEM], [Action.UPDATE]), adminPermissionValidation, validateResult, grantPermissions);
-// Route: Get permissions for a specific user
-// Permissions: SYSTEM resource, READ action
-// attachTargetUser ensures the user exists
-// Endpoint: GET /api/admin/users/:user_id/permissions
-adminPermissionRouter.get("/users/:user_id/permissions", authorize([Resource.SYSTEM], [Action.READ]), attachTargetUser, getUserPermissions);
-// Export the admin permission router
+// ---------------------------------------------------
+// Routes
+// ---------------------------------------------------
+/**
+ * @route   GET /list-users
+ * @desc    List all users in the system
+ * @access  Requires USER:READ permission
+ */
+adminPermissionRouter.get("/list-users", authorize([Resource.USER], [Action.READ]), listUsers);
+/**
+ * @route   GET /list-permissions
+ * @desc    List all available permissions in the system
+ * @access  Requires SYSTEM:READ permission
+ */
+adminPermissionRouter.get("/list-permissions", authorize([Resource.SYSTEM], [Action.READ]), listPermissions);
+/**
+ * @route   GET /list-roles
+ * @desc    List all roles available in the system
+ * @access  Requires SYSTEM:READ permission
+ */
+adminPermissionRouter.get("/list-roles", adminRolesValidation, // Validate request (if needed)
+validateResult, // Handle validation errors
+authorize([Resource.SYSTEM], [Action.READ]), listRoles);
+/**
+ * @route   GET /users/:user_id/permissions
+ * @desc    Get permissions assigned to a specific user
+ * @access  Requires SYSTEM:READ permission
+ */
+adminPermissionRouter.get("/users/:user_id/permissions", authorize([Resource.SYSTEM], [Action.READ]), attachTargetUser, // Ensure target user exists and attach to request
+getUserPermissions);
+/**
+ * @route   PUT /permissions
+ * @desc    Grant permissions to a user
+ * @access  Requires SYSTEM:UPDATE permission
+ */
+adminPermissionRouter.put("/permissions", authorize([Resource.SYSTEM], [Action.UPDATE]), adminPermissionValidation, // Validate permission payload
+validateResult, // Handle validation errors
+grantPermissions);
+/**
+ * @route   PUT /roles
+ * @desc    Grant roles to a user
+ * @access  Requires SYSTEM:READ permission
+ */
+adminPermissionRouter.put("/roles", adminRolesValidation, // Validate role payload
+validateResult, // Handle validation errors
+authorize([Resource.SYSTEM], [Action.READ]), grantRoles);
+// ---------------------------------------------------
+// Export Router
+// ---------------------------------------------------
 export default adminPermissionRouter;
 //# sourceMappingURL=admin.permissions.routes.js.map

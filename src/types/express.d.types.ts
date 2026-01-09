@@ -1,5 +1,5 @@
 import { User, Category } from '@prisma/client';
-import { TokerUserParams } from "../types/user.types.ts";
+import { TokenUserParams } from "../types/user.types.ts";
 
 /**
  * Extend Express.Request to include custom properties used in our app.
@@ -18,7 +18,7 @@ declare global {
        * The user extracted from a verified JWT token.
        * Populated by `verifyToken` middleware.
        */
-      tokenUser?: TokerUserParams;
+      tokenUser: TokenUserParams;
 
       /**
        * Target user's ID for CRUD operations (update, delete, fetch details)

@@ -65,7 +65,7 @@ export interface LoginDeviceParams {
 /**
  * Parameters stored in the token after authentication.
  */
-export interface TokerUserParams {
+export interface TokenUserParams {
     id: number;
     role: Roles[];
 }

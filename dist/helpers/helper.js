@@ -1,3 +1,4 @@
+import { STATUS } from "../enums/enums.js";
 /**
  * Sends a structured JSON response.
  * @param res - Express response object
@@ -20,7 +21,7 @@ export const response = (res, status, success, message, data) => {
  * @returns Express JSON response with unauthorized message
  */
 export const unauthorized = (res) => {
-    return res.status(401).json({
+    return res.status(STATUS.UNAUTHORIZED).json({
         success: false,
         message: "unauthorized",
     });
@@ -31,7 +32,7 @@ export const unauthorized = (res) => {
  * @returns Express JSON response with forbidden message
  */
 export const forbidden = (res) => {
-    return res.status(403).json({
+    return res.status(STATUS.FORBIDDEN).json({
         success: false,
         message: "Access forbidden"
     });

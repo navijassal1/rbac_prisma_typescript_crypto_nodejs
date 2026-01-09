@@ -1,14 +1,13 @@
-import type { ExpressMiddlewareParams, serviceResponse, TargetParams } from '../types/common.types.js'
+import type { ExpressMiddlewareParams, serviceResponse, TargetParams, responseReturnType} from '../types/common.types.js'
 import type {
     SignupReqParams,
     LoginDeviceParams,
     UpdateTargetUserParams,
     ChangeTargetUserPasswordParams,
     RefreshTokenParams,
-    JwtPayload
+    JwtPayload,
 } from "../types/user.types.js"
 import {
-    listUsersService,
     signUpService,
     loginService,
     userDetailsService,
@@ -19,21 +18,9 @@ import {
 } from "../services/user.services.js"
 import { response } from '../helpers/helper.js'
 import { STATUS } from '../enums/enums.js'
+import { errorHandler } from '../middlewares/error.handler.js'
 
-/**
- * @description Middleware to list all users
- * @route GET /users
- * @access Protected/Admin
- */
-export const listUsers: ExpressMiddlewareParams = async (req, res, next) => {
-    try {
-        const result: serviceResponse = await listUsersService()
-        if (!result.success) return response(res, STATUS.BAD_REQUEST, false, result.message)
-        return response(res, STATUS.SUCCESS, true, result.message, result.data)
-    } catch (e) {
-        if (e instanceof Error) next(e)
-    }
-}
+
 
 /**
  * @description Middleware to register a new user
@@ -41,14 +28,15 @@ export const listUsers: ExpressMiddlewareParams = async (req, res, next) => {
  * @access Public
  * @body { SignupReqParams } - Registration details
  */
-export const signUp: ExpressMiddlewareParams = async (req, res, next) => {
+export const signUp: ExpressMiddlewareParams = async (req, res):Promise<object> => {
     try {
         const reqBody: SignupReqParams = req.body
         const result: serviceResponse = await signUpService(reqBody)
         if (!result.success) return response(res, STATUS.BAD_REQUEST, false, result.message)
         return response(res, STATUS.CREATED, true, result.message, result.data)
+        // return 'string'
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 
@@ -58,14 +46,14 @@ export const signUp: ExpressMiddlewareParams = async (req, res, next) => {
  * @access Public
  * @body { LoginDeviceParams } - Email, password, device info
  */
-export const login: ExpressMiddlewareParams = async (req, res, next) => {
+export const login: ExpressMiddlewareParams = async (req, res): Promise<object> => {
     try {
         const reqBody: LoginDeviceParams = req.body
         const result: serviceResponse = await loginService(reqBody)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message, result.data)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error, res);
     }
 }
 
@@ -74,16 +62,16 @@ export const login: ExpressMiddlewareParams = async (req, res, next) => {
  * @route GET /users/me
  * @access Protected (requires tokenUser)
  */
-export const userDetails: ExpressMiddlewareParams = async (req, res, next) => {
+export const userDetails: ExpressMiddlewareParams = async (req, res) => {
     try {
         if (!req.tokenUser) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-            
+
         const tokenUser: JwtPayload = req.tokenUser
         const result: serviceResponse = await userDetailsService(tokenUser)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message, result.data)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 
@@ -93,7 +81,7 @@ export const userDetails: ExpressMiddlewareParams = async (req, res, next) => {
  * @access Protected
  * @body { UpdateTargetUserParams } - Fields to update
  */
-export const updateUser: ExpressMiddlewareParams = async (req, res, next) => {
+export const updateUser: ExpressMiddlewareParams = async (req, res) => {
     try {
         if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
         const targetUser: TargetParams = { id: req.targetUserId }
@@ -102,7 +90,7 @@ export const updateUser: ExpressMiddlewareParams = async (req, res, next) => {
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 
@@ -111,7 +99,7 @@ export const updateUser: ExpressMiddlewareParams = async (req, res, next) => {
  * @route DELETE /users/:userId
  * @access Protected/Admin
  */
-export const deleteUser: ExpressMiddlewareParams = async (req, res, next) => {
+export const deleteUser: ExpressMiddlewareParams = async (req, res) => {
     try {
         if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
         const targetUser: TargetParams = { id: req.targetUserId }
@@ -119,7 +107,7 @@ export const deleteUser: ExpressMiddlewareParams = async (req, res, next) => {
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 
@@ -129,7 +117,7 @@ export const deleteUser: ExpressMiddlewareParams = async (req, res, next) => {
  * @access Protected
  * @body { ChangeTargetUserPasswordParams } - Contains new_password
  */
-export const changePassword: ExpressMiddlewareParams = async (req, res, next) => {
+export const changePassword: ExpressMiddlewareParams = async (req, res) => {
     try {
         if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
         const targetUser: TargetParams = { id: req.targetUserId }
@@ -138,7 +126,7 @@ export const changePassword: ExpressMiddlewareParams = async (req, res, next) =>
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 
@@ -178,7 +166,7 @@ export const refreshAccessToken: ExpressMiddlewareParams = async (req, res, next
         )
     } catch (e) {
         // Pass any unexpected errors to Express error-handling middleware
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }
 

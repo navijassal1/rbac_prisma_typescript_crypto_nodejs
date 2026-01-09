@@ -106,7 +106,7 @@ export const deleteCategory = async (req, res, next) => {
         const targetCategory = { id: req.targetCategoryId };
         const result = await deleteCategoryService(targetCategory);
         if (!result.success) {
-            return response(res, STATUS.NOT_FOUND, false, result.message);
+            return 'response(res, STATUS.NOT_FOUND, false, result.message)';
         }
         return response(res, STATUS.SUCCESS, true, result.message);
     }

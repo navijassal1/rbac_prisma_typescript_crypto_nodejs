@@ -4,6 +4,7 @@ import prisma from '../lib/prisma.client.js';
 import { STATUS } from "../enums/enums.js";
 import type { ExpressMiddlewareParams } from "../types/common.types.js";
 import { response } from "../helpers/helper.js";
+import { validateResult } from "../utils/validation.result.middleware.js";
 
 /**
  * Validation rules for creating a new category.
@@ -20,20 +21,15 @@ export const createCategoryValidation = [
     .matches(/^[a-zA-Z0-9\s&-]+$/)
     .withMessage("Category name can contain letters, numbers, spaces, '&', '-' only.")
     .bail()
-    .custom(async (value, { req }) => {
-      // Check if the category already exists
+    .custom(async (value) => {
       const exists = await prisma.category.findFirst({
         where: { category_name: value, is_deleted: false }
-      });
-
-      if (exists) {
-        throw ({ code: STATUS.UNPROCESSIBLE, message: 'Category Already Exists' });
-      }
-
-      return true;
+      })
+      if (exists) throw new Error("Category already exists")
     }),
-];
 
+  validateResult
+]
 /**
  * Middleware to attach the target category to the request object.
  * Ensures the category exists and belongs to the target user.

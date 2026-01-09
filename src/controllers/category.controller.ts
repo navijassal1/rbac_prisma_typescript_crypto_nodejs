@@ -119,7 +119,7 @@ export const deleteCategory: ExpressMiddlewareParams = async (req, res, next) =>
         const result: serviceResponse = await deleteCategoryService(targetCategory)
 
         if (!result.success) {
-            return response(res, STATUS.NOT_FOUND, false, result.message)
+            return 'response(res, STATUS.NOT_FOUND, false, result.message)'
         }
 
         return response(res, STATUS.SUCCESS, true, result.message)

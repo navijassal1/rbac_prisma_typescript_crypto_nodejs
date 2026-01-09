@@ -3,24 +3,17 @@ import { Router } from "express";
 
 // Import controller functions for user management
 import {
-  listUsers,
   userDetails,
   updateUser,
   deleteUser,
   changePassword
 } from "../../controllers/user.controller.js";
 
-// Import middleware to validate request body results
-import { validateResult } from "../../utils/validation.result.middleware.js";
-
 // Import user-specific validations and utility middleware
 import {
   ChangePasswordValidation, // Validation rules for password change
   attachTargetUser           // Middleware to attach target user to request
 } from "../../validations/user.validations.js";
-
-// Import middleware to verify JWT token
-import { verifyToken } from "../../middlewares/token.manager.js";
 
 // Import middleware for role-based access control
 import { authorize } from "../../middlewares/authorize.role.js";
@@ -31,25 +24,13 @@ import { Resource, Action } from "../../enums/enums.js";
 // Create a router instance for protected user routes
 const userProtectedRouter = Router();
 
-// All routes below require a valid JWT token
-userProtectedRouter.use(verifyToken);
-
-// Route: List all users
-// Permissions: SYSTEM resource, READ action
-// Endpoint: GET /api/users/list-users
-userProtectedRouter.get(
-  "/list-users",
-  authorize([Resource.USER], [Action.READ]),
-  listUsers
-);
-
 // Route: Update a user
 // Permissions: USER resource, CREATE action
 // Middleware attachTargetUser ensures we know which user is being updated
 // Endpoint: PUT /api/users/:username
 userProtectedRouter.put(
   "/:username",
-  authorize([Resource.USER], [Action.CREATE]),
+  authorize([Resource.USER], [Action.UPDATE]),
   attachTargetUser,
   updateUser
 );
@@ -72,7 +53,6 @@ userProtectedRouter.patch(
   authorize([Resource.USER], [Action.UPDATE]),
   attachTargetUser,
   ChangePasswordValidation,
-  validateResult,
   changePassword
 );
 

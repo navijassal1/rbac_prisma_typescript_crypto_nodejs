@@ -10,7 +10,8 @@ export enum STATUS {
     UNAUTHORIZED = 401,     // User is not authenticated
     SERVER_ERROR = 500,     // Internal server error
     BAD_REQUEST = 400,      // Malformed request or invalid parameters
-    CONFLICT = 409,         // Conflict (e.g., duplicate resource)
+    CONFLICT = 409,  
+    FORBIDDEN=403       // Conflict (e.g., duplicate resource)
 }
 
 /**
@@ -20,7 +21,7 @@ export enum STATUS {
 export enum Roles {
     SUPER_ADMIN = 'SUPER_ADMIN', // Full access to all system resources
     ADMIN = "ADMIN",             // Administrative privileges
-    VENDOR = "VENDOR",           // Vendor-specific access
+    VENDOR = "VENDOR",          // Vendor-specific access
     USER = "USER",               // Regular user access
 }
 

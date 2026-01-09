@@ -2,17 +2,21 @@
 import { Router } from "express";
 
 // Import protected user-related routes
-import userProtectedRouter from "../api/user.protected.routes.js";
+import userProtectedRouter from "./user.routes.js";
 
 // Import category-related routes
 import categoryProtectedRouter from "../api/category.routes.js";
 
 // Import admin-only permission and management routes
-import adminPermissionRouter from "../api/admin.permissions.routes.js";
+import adminPermissionRouter from "./admin-permissions.routes.js";
 
+// Middleware to verify JWT token
+import { verifyToken } from "../../middlewares/token.manager.js";
 // Create a main API router instance
 const apiRoutes = Router();
 
+// All routers require authentication
+apiRoutes.use(verifyToken);
 // Mount user-related protected routes
 // Example: /api/users/profile, /api/users/update
 apiRoutes.use("/users", userProtectedRouter);

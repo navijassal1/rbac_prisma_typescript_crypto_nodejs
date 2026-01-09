@@ -1,11 +1,5 @@
 import type { ExpressMiddlewareParams } from '../types/common.types.js';
 /**
- * @description Middleware to list all users
- * @route GET /users
- * @access Protected/Admin
- */
-export declare const listUsers: ExpressMiddlewareParams;
-/**
  * @description Middleware to register a new user
  * @route POST /users/signup
  * @access Public

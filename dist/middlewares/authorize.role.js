@@ -10,6 +10,7 @@ import prisma from "../lib/prisma.client.js";
  * @returns Express middleware function
  */
 export const authorize = (allowedResources, allowedActions) => async (req, res, next) => {
+    console.log("----------START-----------");
     // The authenticated user should be attached to req.tokenUser by previous JWT middleware
     const user = req.tokenUser;
     // Debug logs for development (remove or disable in production)
@@ -17,9 +18,6 @@ export const authorize = (allowedResources, allowedActions) => async (req, res, 
     console.log(allowedResources, "allowedResources\n");
     console.log(allowedActions, "allowedActions\n");
     // If no authenticated user is found, return 401 Unauthorized
-    if (!user) {
-        return unauthorized(res);
-    }
     // Query user permissions from the database
     // Only fetch permissions matching allowed resources and actions
     const userPermissions = await prisma.user_permission.findMany({

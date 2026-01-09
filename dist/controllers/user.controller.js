@@ -1,40 +1,24 @@
-import { listUsersService, signUpService, loginService, userDetailsService, updateUserService, deleteUserService, changePasswordService, refreshTokenService } from "../services/user.services.js";
+import { signUpService, loginService, userDetailsService, updateUserService, deleteUserService, changePasswordService, refreshTokenService } from "../services/user.services.js";
 import { response } from '../helpers/helper.js';
 import { STATUS } from '../enums/enums.js';
-/**
- * @description Middleware to list all users
- * @route GET /users
- * @access Protected/Admin
- */
-export const listUsers = async (req, res, next) => {
-    try {
-        const result = await listUsersService();
-        if (!result.success)
-            return response(res, STATUS.BAD_REQUEST, false, result.message);
-        return response(res, STATUS.SUCCESS, true, result.message, result.data);
-    }
-    catch (e) {
-        if (e instanceof Error)
-            next(e);
-    }
-};
+import { errorHandler } from '../middlewares/error.handler.js';
 /**
  * @description Middleware to register a new user
  * @route POST /users/signup
  * @access Public
  * @body { SignupReqParams } - Registration details
  */
-export const signUp = async (req, res, next) => {
+export const signUp = async (req, res) => {
     try {
         const reqBody = req.body;
         const result = await signUpService(reqBody);
         if (!result.success)
             return response(res, STATUS.BAD_REQUEST, false, result.message);
         return response(res, STATUS.CREATED, true, result.message, result.data);
+        // return 'string'
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -43,7 +27,7 @@ export const signUp = async (req, res, next) => {
  * @access Public
  * @body { LoginDeviceParams } - Email, password, device info
  */
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
     try {
         const reqBody = req.body;
         const result = await loginService(reqBody);
@@ -52,8 +36,7 @@ export const login = async (req, res, next) => {
         return response(res, STATUS.SUCCESS, true, result.message, result.data);
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -61,7 +44,7 @@ export const login = async (req, res, next) => {
  * @route GET /users/me
  * @access Protected (requires tokenUser)
  */
-export const userDetails = async (req, res, next) => {
+export const userDetails = async (req, res) => {
     try {
         if (!req.tokenUser)
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
@@ -72,8 +55,7 @@ export const userDetails = async (req, res, next) => {
         return response(res, STATUS.SUCCESS, true, result.message, result.data);
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -82,7 +64,7 @@ export const userDetails = async (req, res, next) => {
  * @access Protected
  * @body { UpdateTargetUserParams } - Fields to update
  */
-export const updateUser = async (req, res, next) => {
+export const updateUser = async (req, res) => {
     try {
         if (!req.targetUserId)
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
@@ -94,8 +76,7 @@ export const updateUser = async (req, res, next) => {
         return response(res, STATUS.SUCCESS, true, result.message);
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -103,7 +84,7 @@ export const updateUser = async (req, res, next) => {
  * @route DELETE /users/:userId
  * @access Protected/Admin
  */
-export const deleteUser = async (req, res, next) => {
+export const deleteUser = async (req, res) => {
     try {
         if (!req.targetUserId)
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
@@ -114,8 +95,7 @@ export const deleteUser = async (req, res, next) => {
         return response(res, STATUS.SUCCESS, true, result.message);
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -124,7 +104,7 @@ export const deleteUser = async (req, res, next) => {
  * @access Protected
  * @body { ChangeTargetUserPasswordParams } - Contains new_password
  */
-export const changePassword = async (req, res, next) => {
+export const changePassword = async (req, res) => {
     try {
         if (!req.targetUserId)
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
@@ -136,8 +116,7 @@ export const changePassword = async (req, res, next) => {
         return response(res, STATUS.SUCCESS, true, result.message);
     }
     catch (e) {
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 /**
@@ -168,8 +147,7 @@ export const refreshAccessToken = async (req, res, next) => {
     }
     catch (e) {
         // Pass any unexpected errors to Express error-handling middleware
-        if (e instanceof Error)
-            next(e);
+        return errorHandler(e, res);
     }
 };
 //# sourceMappingURL=user.controller.js.map

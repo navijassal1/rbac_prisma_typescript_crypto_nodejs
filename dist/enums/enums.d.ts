@@ -10,7 +10,8 @@ export declare enum STATUS {
     UNAUTHORIZED = 401,// User is not authenticated
     SERVER_ERROR = 500,// Internal server error
     BAD_REQUEST = 400,// Malformed request or invalid parameters
-    CONFLICT = 409
+    CONFLICT = 409,
+    FORBIDDEN = 403
 }
 /**
  * User roles in the system.

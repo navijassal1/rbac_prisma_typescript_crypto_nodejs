@@ -5,6 +5,7 @@ import { body } from "express-validator";
 import prisma from '../lib/prisma.client.js';
 import { STATUS } from "../enums/enums.js";
 import { response } from "../helpers/helper.js";
+import { validateResult } from "../utils/validation.result.middleware.js";
 // Reserved usernames that cannot be registered
 const RESERVED = ["admin", "root", "superuser"];
 /**
@@ -73,7 +74,8 @@ export const signupValidation = [
         if (value !== req.body.password)
             throw ({ code: STATUS.BAD_REQUEST, message: 'Passwords do not match.' });
         return true;
-    })
+    }),
+    validateResult
 ];
 /**
  * Validation rules for user login.
@@ -98,7 +100,8 @@ export const loginValidation = [
         return true;
     }),
     body('device_id').notEmpty().withMessage('Device Id is Required'),
-    body('device_type').notEmpty().withMessage('Device Type is Required')
+    body('device_type').notEmpty().withMessage('Device Type is Required'),
+    validateResult
 ];
 /**
  * Validation rules for changing a user's password.
@@ -128,7 +131,8 @@ export const ChangePasswordValidation = [
         if (sameAsOld)
             throw ({ code: STATUS.BAD_REQUEST, message: 'New password must be different from current password.' });
         return true;
-    })
+    }),
+    validateResult
 ];
 /**
  * Middleware array to validate the refresh token in incoming requests.
@@ -146,6 +150,7 @@ export const refreshTokenValidation = [
         // Ensure that refresh_token is of type string
         .isString()
         .withMessage('Only string is required'), // Custom error message if wrong type
+    validateResult
 ];
 /**
  * Middleware to attach the target user's ID to the request.

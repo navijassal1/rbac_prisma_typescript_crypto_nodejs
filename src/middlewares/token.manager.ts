@@ -8,7 +8,7 @@ import prisma from "../lib/prisma.client.js";
 import type { StringValue } from "ms";
 import type { ExpressMiddlewareParams, serviceResponse } from "../types/common.types.js";
 import { forbidden, unauthorized } from "../helpers/helper.js";
-import type { JwtPayload } from "../types/user.types.js";
+import type { JwtPayload, TokenUserParams } from "../types/user.types.js";
 import { Roles } from "../enums/enums.js";
 import { decryptedPayload, encrytPayload } from "../services/crypto.services.js";
 
@@ -48,7 +48,7 @@ export const generateRefreshToken = async (user: JwtPayload): Promise<string> =>
  * @param {Response} res - Express response object
  * @param {NextFunction} next - Express next middleware function
  */
-export const verifyToken: ExpressMiddlewareParams = async (req, res, next) => {
+export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promise<any> => {
     try {
         // Extract Authorization header
         const authorization = req.headers.authorization;

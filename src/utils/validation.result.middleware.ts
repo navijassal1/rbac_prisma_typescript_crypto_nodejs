@@ -10,11 +10,11 @@ import { STATUS } from "../enums/enums.js";
  */
 export const validateResult = (req: Request, res: Response, next: NextFunction) => {
     // Extract validation errors from the request
-    console.log('in validation')
+    // console.log('in validation')
     const errors = validationResult(req);
-    console.log('-----start--------')
-    console.log(errors.isEmpty())
-    console.log('-----errors--------')
+    // console.log('-----start--------')
+    // console.log(errors.isEmpty())
+    // console.log('-----errors--------')
     // If errors exist, format and return them
     if (!errors.isEmpty()) {
         const errorArray = errors.array(); // array of validation errors

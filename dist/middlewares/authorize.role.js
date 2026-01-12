@@ -17,7 +17,6 @@ export const authorize = (allowedResources, allowedActions) => async (req, res, 
     console.log(user, "user\n");
     console.log(allowedResources, "allowedResources\n");
     console.log(allowedActions, "allowedActions\n");
-    // If no authenticated user is found, return 401 Unauthorized
     // Query user permissions from the database
     // Only fetch permissions matching allowed resources and actions
     const userPermissions = await prisma.user_permission.findMany({

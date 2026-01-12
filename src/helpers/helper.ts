@@ -1,4 +1,5 @@
-import type { ResponseParams, unauthorizedResponseParams } from "../types/common.types.js";
+import type { ApiResponseReturn, ResponseParams, unauthorizedResponseParams } from "../types/common.types.js";
+import type {Response} from "express"
 import {STATUS} from "../enums/enums.js"
 /**
  * Sends a structured JSON response.
@@ -9,19 +10,21 @@ import {STATUS} from "../enums/enums.js"
  * @param data - Optional payload data
  * @returns Express JSON response
  */
-export const response: ResponseParams = (res, status, success, message, data):object => {
-    return res.status(status).json({
-        success,
-        message,
-        data
-    });
+export const response: ResponseParams = async (res, status, success, message, data):Promise<ApiResponseReturn>  => {
+
+    const resData:ApiResponseReturn ={
+        success:success,
+        message:message,
+        data:data
+    }
+    return res.status(status).json(resData);
 };
 /**
  * Sends a 401 Unauthorized response.
  * @param res - Express response object
  * @returns Express JSON response with unauthorized message
  */
-export const unauthorized: unauthorizedResponseParams = (res):object => {
+export const unauthorized: unauthorizedResponseParams = async (res):Promise<ApiResponseReturn> => {
     return res.status(STATUS.UNAUTHORIZED).json({
         success: false,
         message: "unauthorized",
@@ -32,7 +35,7 @@ export const unauthorized: unauthorizedResponseParams = (res):object => {
  * @param res - Express response object
  * @returns Express JSON response with forbidden message
  */
-export const forbidden: unauthorizedResponseParams = (res):object => {
+export const forbidden: unauthorizedResponseParams = async(res):Promise<ApiResponseReturn> => {
     return res.status(STATUS.FORBIDDEN).json({
         success: false,
         message: "Access forbidden"

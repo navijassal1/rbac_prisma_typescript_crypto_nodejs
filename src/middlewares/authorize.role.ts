@@ -8,7 +8,6 @@ import type { Resource, Action } from "../enums/enums.js";
 
 // Prisma client for database access
 import prisma from "../lib/prisma.client.js";
-import type { TokenUserParams } from "../types/user.types.js";
 
 /**
  * Role-Based Access Control (RBAC) middleware
@@ -27,8 +26,6 @@ export const authorize = (allowedResources: Resource[], allowedActions: Action[]
     console.log(user, "user\n");
     console.log(allowedResources, "allowedResources\n");
     console.log(allowedActions, "allowedActions\n");
-
-    // If no authenticated user is found, return 401 Unauthorized
 
     // Query user permissions from the database
     // Only fetch permissions matching allowed resources and actions

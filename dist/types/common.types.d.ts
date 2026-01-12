@@ -7,10 +7,8 @@ import type { Request, Response, NextFunction } from "express";
  * @param res - Express response object
  * @param next - Express next function to pass control
  */
-export type ExpressMiddlewareParams = (req: Request, res: Response, next: NextFunction) => Promise<any>;
-export type responseReturnType = {
-    object: object;
-};
+export type ApiResponseReturn = object | void;
+export type ExpressMiddlewareParams = (req: Request, res: Response, next: NextFunction) => Promise<ApiResponseReturn>;
 /**
  * Type definition for an Express error-handling middleware.
  * Error handlers have four parameters: error, request, response, next.
@@ -39,7 +37,7 @@ export type ResponseParams = (res: Response, status: number, success: boolean, m
  * @param res - Express response object
  */
 export type unauthorizedResponseParams = (res: Response) => object;
-export interface serviceResponse<T = any> {
+export interface serviceResponse<T = object> {
     success: boolean;
     message: string;
     data?: T;

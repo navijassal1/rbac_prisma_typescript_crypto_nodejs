@@ -45,7 +45,7 @@ const adminPermissionRouter = Router();
  * @desc    List all users in the system
  * @access  Requires USER:READ permission
  */
-adminPermissionRouter.get("/list-users", authorize([Resource.USER], [Action.READ]), listUsers);
+adminPermissionRouter.get("/list-users", authorize([Resource.SYSTEM], [Action.READ]), listUsers);
 /**
  * @route   GET /list-permissions
  * @desc    List all available permissions in the system
@@ -57,8 +57,7 @@ adminPermissionRouter.get("/list-permissions", authorize([Resource.SYSTEM], [Act
  * @desc    List all roles available in the system
  * @access  Requires SYSTEM:READ permission
  */
-adminPermissionRouter.get("/list-roles", authorize([Resource.SYSTEM], [Action.READ]), adminRolesValidation, // Validate request (if needed)
-listRoles);
+adminPermissionRouter.get("/list-roles", authorize([Resource.SYSTEM], [Action.READ]), listRoles);
 /**
  * @route   GET /users/:user_id/permissions
  * @desc    Get permissions assigned to a specific user

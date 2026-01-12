@@ -5,7 +5,7 @@ import { body } from "express-validator";
 // Internal modules
 import prisma from '../lib/prisma.client.js';
 import { STATUS } from "../enums/enums.js";
-import type { ExpressMiddlewareParams } from "../types/common.types.js";
+import type { ApiResponseReturn, ExpressMiddlewareParams } from "../types/common.types.js";
 import { response } from "../helpers/helper.js";
 import { validateResult } from "../utils/validation.result.middleware.js";
 
@@ -172,7 +172,7 @@ export const refreshTokenValidation = [
  * Middleware to attach the target user's ID to the request.
  * Useful for controllers that need to perform operations on a specific user.
  */
-export const attachTargetUser: ExpressMiddlewareParams = async (req, res, next) => {
+export const attachTargetUser: ExpressMiddlewareParams = async (req, res, next):Promise<ApiResponseReturn> => {
   const username = req.params.username as string;
 
   const userExist = await prisma.user.findUnique({

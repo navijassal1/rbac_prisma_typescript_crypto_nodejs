@@ -14,7 +14,7 @@ export const signUp = async (req, res) => {
         const result = await signUpService(reqBody);
         if (!result.success)
             return response(res, STATUS.BAD_REQUEST, false, result.message);
-        return response(res, STATUS.CREATED, true, result.message, result.data);
+        // return response(res, STATUS.CREATED, true, result.message, result.data)
         // return 'string'
     }
     catch (e) {
@@ -128,7 +128,7 @@ export const changePassword = async (req, res) => {
  * @param res - Express response object used to send responses to the client
  * @param next - Express next function for passing errors to error-handling middleware
  */
-export const refreshAccessToken = async (req, res, next) => {
+export const refreshAccessToken = async (req, res) => {
     try {
         // Extract the request body and type it as RefreshTokenParams
         // This ensures TypeScript knows we expect a refresh_token field

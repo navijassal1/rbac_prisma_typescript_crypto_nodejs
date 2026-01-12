@@ -10,7 +10,7 @@ import prisma from '../lib/prisma.client.js';
 import { STATUS } from "../enums/enums.js";
 
 // Custom Express middleware typing
-import type { ExpressMiddlewareParams } from "../types/common.types.js";
+import type { ApiResponseReturn, ExpressMiddlewareParams } from "../types/common.types.js";
 
 // Standardized API response helper
 import { response } from "../helpers/helper.js";
@@ -194,7 +194,7 @@ export const adminRolesValidation = [
  * - Verifies user existence
  * - Attaches targetUserId to request object
  */
-export const attachTargetUser: ExpressMiddlewareParams = async (req, res, next) => {
+export const attachTargetUser: ExpressMiddlewareParams = async (req, res, next):Promise<ApiResponseReturn>  => {
 
   // Convert user_id param to number
   const userId = Number(req.params.user_id);

@@ -1,15 +1,16 @@
-import type { ExpressMiddlewareParams, serviceResponse, TargetParams } from '../types/common.types.js'
+import type { ApiResponseReturn, ExpressMiddlewareParams, serviceResponse, TargetParams } from '../types/common.types.js'
 import type { CategoryNameParams, UpdateCategoryParams } from "../types/category.types.js"
 import { listCategoriesService, createCategoriesService, categoryDetailsService, updateCategoryService, deleteCategoryService } from "../services/category.services.js"
 import { response } from '../helpers/helper.js'
 import { STATUS } from '../enums/enums.js'
+import { errorHandler } from '../middlewares/error.handler.js'
 
 /**
  * @description Middleware to fetch all categories for a specific user
  * @route GET /users/:userId/categories
  * @access Protected (requires targetUserId)
  */
-export const listCategories: ExpressMiddlewareParams = async (req, res, next) => {
+export const listCategories: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
     try {
         if (!req.targetUserId) {
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
@@ -24,7 +25,7 @@ export const listCategories: ExpressMiddlewareParams = async (req, res, next) =>
 
         return response(res, STATUS.SUCCESS, true, result.message, result.data)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error, res)
     }
 }
 
@@ -34,7 +35,7 @@ export const listCategories: ExpressMiddlewareParams = async (req, res, next) =>
  * @access Protected (requires targetUserId)
  * @body { CategoryNameParams } - Contains category_name
  */
-export const createCategories: ExpressMiddlewareParams = async (req, res, next) => {
+export const createCategories: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
     try {
         if (!req.targetUserId) {
             return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
@@ -50,7 +51,7 @@ export const createCategories: ExpressMiddlewareParams = async (req, res, next) 
 
         return response(res, STATUS.CREATED, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error, res)
     }
 }
 
@@ -59,7 +60,7 @@ export const createCategories: ExpressMiddlewareParams = async (req, res, next) 
  * @route GET /users/:userId/categories/:categoryId
  * @access Protected (requires targetUserId and targetCategoryId)
  */
-export const categoryDetails: ExpressMiddlewareParams = async (req, res, next) => {
+export const categoryDetails: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
     try {
         if (!req.targetUserId || !req.targetCategoryId) {
             return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set")
@@ -74,7 +75,7 @@ export const categoryDetails: ExpressMiddlewareParams = async (req, res, next) =
 
         return response(res, STATUS.SUCCESS, true, 'Category details', result.data)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error, res)
     }
 }
 
@@ -84,7 +85,7 @@ export const categoryDetails: ExpressMiddlewareParams = async (req, res, next) =
  * @access Protected (requires targetUserId and targetCategoryId)
  * @body { UpdateCategoryParams } - Contains updated category_name
  */
-export const updateCategory: ExpressMiddlewareParams = async (req, res, next) => {
+export const updateCategory: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
     try {
         if (!req.targetUserId || !req.targetCategoryId) {
             return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set")
@@ -100,7 +101,7 @@ export const updateCategory: ExpressMiddlewareParams = async (req, res, next) =>
 
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error, res)
     }
 }
 
@@ -109,7 +110,7 @@ export const updateCategory: ExpressMiddlewareParams = async (req, res, next) =>
  * @route DELETE /users/:userId/categories/:categoryId
  * @access Protected (requires targetUserId and targetCategoryId)
  */
-export const deleteCategory: ExpressMiddlewareParams = async (req, res, next) => {
+export const deleteCategory: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
     try {
         if (!req.targetUserId || !req.targetCategoryId) {
             return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set")
@@ -119,11 +120,11 @@ export const deleteCategory: ExpressMiddlewareParams = async (req, res, next) =>
         const result: serviceResponse = await deleteCategoryService(targetCategory)
 
         if (!result.success) {
-            return 'response(res, STATUS.NOT_FOUND, false, result.message)'
+            return response(res, STATUS.NOT_FOUND, false, result.message)
         }
 
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
-        if (e instanceof Error) next(e)
+        return errorHandler(e as Error,res)
     }
 }

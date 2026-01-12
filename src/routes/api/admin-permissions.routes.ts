@@ -59,7 +59,7 @@ const adminPermissionRouter = Router();
  */
 adminPermissionRouter.get(
   "/list-users",
-  authorize([Resource.USER], [Action.READ]),
+  authorize([Resource.SYSTEM], [Action.READ]),
   listUsers
 );
 
@@ -82,7 +82,6 @@ adminPermissionRouter.get(
 adminPermissionRouter.get(
   "/list-roles",
   authorize([Resource.SYSTEM], [Action.READ]),
-  adminRolesValidation,   // Validate request (if needed)
   listRoles
 );
 

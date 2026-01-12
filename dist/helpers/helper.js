@@ -8,19 +8,20 @@ import { STATUS } from "../enums/enums.js";
  * @param data - Optional payload data
  * @returns Express JSON response
  */
-export const response = (res, status, success, message, data) => {
-    return res.status(status).json({
-        success,
-        message,
-        data
-    });
+export const response = async (res, status, success, message, data) => {
+    const resData = {
+        success: success,
+        message: message,
+        data: data
+    };
+    return res.status(status).json(resData);
 };
 /**
  * Sends a 401 Unauthorized response.
  * @param res - Express response object
  * @returns Express JSON response with unauthorized message
  */
-export const unauthorized = (res) => {
+export const unauthorized = async (res) => {
     return res.status(STATUS.UNAUTHORIZED).json({
         success: false,
         message: "unauthorized",
@@ -31,7 +32,7 @@ export const unauthorized = (res) => {
  * @param res - Express response object
  * @returns Express JSON response with forbidden message
  */
-export const forbidden = (res) => {
+export const forbidden = async (res) => {
     return res.status(STATUS.FORBIDDEN).json({
         success: false,
         message: "Access forbidden"

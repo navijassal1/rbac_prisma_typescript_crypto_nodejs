@@ -8,8 +8,11 @@
  */
 
 import "dotenv/config"; // Automatically loads variables from .env into process.env
+
 import type { DatabaseParams } from '../types/db.types.js';
+
 import type { JwtParams } from '../types/user.types.js';
+
 import { 
   getRequiredEnvString,  // Helper: throws error if required env variable is missing
   getOptionalEnvString,  // Helper: returns undefined if variable is missing (optional)
@@ -27,7 +30,6 @@ export const DB: DatabaseParams = {
   HOST: getRequiredEnvString('DATABASE_HOST'),        // Required DB host (e.g., localhost)
   PORT: getRequiredEnvNumber('DATABASE_PORT'),        // Required DB port (parsed as number)
 };
-
 /**
  * Server configuration object.
  * Port is parsed directly from environment variable (optional validation could be added).
@@ -35,7 +37,6 @@ export const DB: DatabaseParams = {
 export const SERVER_ENV: { PORT: number } = {
   PORT: Number(process.env.SERVER_PORT),              // Port on which the server will listen
 };
-
 /**
  * JWT (JSON Web Token) configuration.
  * Secret key and token lifetimes are required for generating and verifying tokens.

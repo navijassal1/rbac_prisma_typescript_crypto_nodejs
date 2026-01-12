@@ -180,7 +180,7 @@ export const grantRolesService = async (reqBody) => {
             where: { id: { in: rolesIds } },
             select: { id: true }
         });
-        console.log(roleExists, 'Roles exists');
+        // console.log(roleExists, 'Roles exists')
         if (!roleExists || roleExists.length === 0) {
             return { success: false, message: "Invalid Role ID(s)" };
         }
@@ -191,7 +191,7 @@ export const grantRolesService = async (reqBody) => {
                 permission: true
             }
         });
-        console.log(rolePermissions, 'Roles Permissions');
+        // console.log(rolePermissions, 'Roles Permissions')
         // Extract permission IDs from role-permission mapping
         const permissionIds = rolePermissions.map(p => p.permission.id);
         // Remove roles that are no longer assigned

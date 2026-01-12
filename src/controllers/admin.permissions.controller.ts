@@ -16,6 +16,7 @@
 // --------------------------------------------------
 
 import type {
+  ApiResponseReturn,
   ExpressMiddlewareParams,
   serviceResponse,
   TargetParams
@@ -45,6 +46,7 @@ import {
 
 import { response } from "../helpers/helper.js"
 import { STATUS } from "../enums/enums.js"
+import { errorHandler } from "../middlewares/error.handler.js"
 
 // --------------------------------------------------
 // Controllers
@@ -55,17 +57,15 @@ import { STATUS } from "../enums/enums.js"
  * @route       GET /list-users
  * @access      Protected / Admin
  */
-export const listUsers: ExpressMiddlewareParams = async (req, res, next) => {
+export const listUsers: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
     const result: serviceResponse = await listUsersService()
-
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
-
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }
 
@@ -74,23 +74,16 @@ export const listUsers: ExpressMiddlewareParams = async (req, res, next) => {
  * @route       GET /list-permissions
  * @access      Protected / Admin
  */
-export const listPermissions: ExpressMiddlewareParams = async (req, res, next): Promise<any> => {
+export const listPermissions: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    // Ensure authenticated user is attached by token middleware
-    if (!req.tokenUser) {
-      return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-    }
-
-    const targetUser: TargetParams = req.tokenUser
     const result: serviceResponse = await listPermissionsService()
-
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
 
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }
 
@@ -99,17 +92,15 @@ export const listPermissions: ExpressMiddlewareParams = async (req, res, next): 
  * @route       GET /list-roles
  * @access      Protected / Admin
  */
-export const listRoles: ExpressMiddlewareParams = async (req, res, next) => {
+export const listRoles: ExpressMiddlewareParams = async (req,res) => {
   try {
     const result: serviceResponse = await listRolesService()
-
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
-
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }
 
@@ -119,23 +110,16 @@ export const listRoles: ExpressMiddlewareParams = async (req, res, next) => {
  * @access      Protected / Admin
  * @requires    req.targetUserId (attached by middleware)
  */
-export const getUserPermissions: ExpressMiddlewareParams = async (req, res, next): Promise<any> => {
+export const getUserPermissions: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    // Ensure target user ID is attached by attachTargetUser middleware
-    if (!req.targetUserId) {
-      return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-    }
-
-    const targetUserId = req.targetUserId
+    const targetUserId:TargetParams = req.targetUserId
     const result: serviceResponse = await getUserPermissionsService(targetUserId)
-
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
-
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }
 
@@ -148,13 +132,8 @@ export const getUserPermissions: ExpressMiddlewareParams = async (req, res, next
  *              - user_id
  *              - permission_ids[]
  */
-export const grantPermissions: ExpressMiddlewareParams = async (req, res, next): Promise<any> => {
+export const grantPermissions: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    // Ensure authenticated user and request body exist
-    if (!req.tokenUser || !req.body) {
-      return response(res, STATUS.BAD_REQUEST, false, "Target user or request body not set")
-    }
-
     const reqBody: GrantPermissionParams = req.body
     const result: serviceResponse = await grantPermissionsService(reqBody)
 
@@ -164,7 +143,7 @@ export const grantPermissions: ExpressMiddlewareParams = async (req, res, next):
 
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }
 
@@ -177,13 +156,8 @@ export const grantPermissions: ExpressMiddlewareParams = async (req, res, next):
  *              - user_id
  *              - role_ids[]
  */
-export const grantRoles: ExpressMiddlewareParams = async (req, res, next): Promise<any> => {
+export const grantRoles: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    // Ensure authenticated user and request body exist
-    if (!req.tokenUser || !req.body) {
-      return response(res, STATUS.BAD_REQUEST, false, "Target user or request body not set")
-    }
-
     const reqBody: GrantRolesParams = req.body
     const result: serviceResponse = await grantRolesService(reqBody)
 
@@ -193,6 +167,6 @@ export const grantRoles: ExpressMiddlewareParams = async (req, res, next): Promi
 
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
-    if (e instanceof Error) next(e)
+    return errorHandler(e as Error, res)
   }
 }

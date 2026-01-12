@@ -39,7 +39,6 @@ export const attachTargetCategory: ExpressMiddlewareParams = async (req, res, ne
   if (!req.targetUserId || !req.params.categorySlug) {
     return response(res, STATUS.BAD_REQUEST, false, "Target user or category slug not set");
   }
-
   // Find the category for this user that is not deleted
   const categoryExists = await prisma.category.findFirst({
     where: {
@@ -49,11 +48,9 @@ export const attachTargetCategory: ExpressMiddlewareParams = async (req, res, ne
     },
     select: { id: true }
   });
-
   if (!categoryExists) {
     return response(res, STATUS.NOT_FOUND, false, 'Category Not Found');
   }
-
   // Attach category ID to request for downstream handlers
   req.targetCategoryId = categoryExists.id;
   next();

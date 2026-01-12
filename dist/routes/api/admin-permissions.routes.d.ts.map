@@ -1,1 +1,1 @@
-{"version":3,"file":"admin-permissions.routes.d.ts","sourceRoot":"","sources":["../../../src/routes/api/admin-permissions.routes.ts"],"names":[],"mappings":"AAAA;;;;;;;;;;GAUG;AAuCH,QAAA,MAAM,qBAAqB,4CAAW,CAAC;AA8EvC,eAAe,qBAAqB,CAAC"}
+{"version":3,"file":"admin-permissions.routes.d.ts","sourceRoot":"","sources":["../../../src/routes/api/admin-permissions.routes.ts"],"names":[],"mappings":"AA8BA,QAAA,MAAM,qBAAqB,4CAAW,CAAC;AAwEvC,eAAe,qBAAqB,CAAC"}

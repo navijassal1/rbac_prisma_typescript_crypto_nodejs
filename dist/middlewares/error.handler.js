@@ -11,7 +11,6 @@ import { STATUS } from '../enums/enums.js';
 export const errorHandler = (err, res) => {
     // Log the error to console for debugging
     console.error(err);
-    // Use error status if available, otherwise default to 500 (Internal Server Error)
     // Send a standardized error response
     return res.status(STATUS.SERVER_ERROR).json({
         success: false,

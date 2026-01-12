@@ -1,13 +1,14 @@
 import { PrismaClient } from "@prisma/client"
+
 import { PrismaMariaDb } from "@prisma/adapter-mariadb"
+
 import { DB } from "../constants/backend.js"
-import type { DatabaseParams } from "../types/db.types.js"
 
 /**
  * PrismaMariaDb connection configuration.
  * Using the DB constants loaded from environment variables.
  */
-const db:DatabaseParams=DB
+
 const connection = new PrismaMariaDb({
     database: DB.NAME,      // Database name
     user: DB.USER,          // Database username
@@ -15,7 +16,6 @@ const connection = new PrismaMariaDb({
     host: DB.HOST,          // Database host (localhost or IP)
     port: DB.PORT,          // Database port (number)
 })
-
 /**
  * Prisma client instance.
  * The adapter allows Prisma to work with MariaDB.

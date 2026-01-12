@@ -14,9 +14,6 @@ import type {
 } from "../types/user.types.js"
 import type { serviceResponse, TargetParams } from '../types/common.types.js'
 
-
-
-
 /**
  * @description Create a new user with hashed password, assigned role, and permissions
  * @param {SignupReqParams} reqBody - User registration details
@@ -25,7 +22,6 @@ import type { serviceResponse, TargetParams } from '../types/common.types.js'
 export const signUpService = async (reqBody: SignupReqParams): Promise<serviceResponse> => {
     try {
         const { role, first_name, last_name, username, password, email } = reqBody
-
         // Check if role exists and fetch its permissions
         const roleExists = await prisma.role.findUnique({
             where: { name: role },
@@ -36,22 +32,18 @@ export const signUpService = async (reqBody: SignupReqParams): Promise<serviceRe
             }
         })
         if (!roleExists) return { success: false, message: 'Invalid Role' }
-
         // Hash the password securely
         const hashPassword: string = await bcrypt.hash(password, 10)
-
         // Create the user
         const user = await prisma.user.create({
             data: { first_name, last_name, username, password: hashPassword, email }
         })
         if (!user) return { success: false, message: 'User not created' }
-
         // Assign role to the user
         const userRole = await prisma.user_Role.create({
             data: { user_id: user.id, role_id: roleExists.id }
         })
         if (!userRole) return { success: false, message: 'User role not granted' }
-
         // Assign permissions based on role
         const userPermissions = await prisma.user_permission.createMany({
             data: roleExists.permissions.map(p => ({
@@ -61,22 +53,19 @@ export const signUpService = async (reqBody: SignupReqParams): Promise<serviceRe
             skipDuplicates: true
         })
         if (!userPermissions) return { success: false, message: 'User permissions not granted' }
-
         return { success: true, message: "User created successfully" }
-    } catch (error: any) {
+    } catch (error) {
         throw error
     }
 }
-
 /**
  * @description User login service supporting multi-device sessions
  * @param {LoginDeviceParams} reqBody - Login credentials and device info
  * @returns {Promise<object>} - Returns success status, message, and tokens
  */
-export const loginService = async (reqBody: LoginDeviceParams): Promise<any> => {
+export const loginService = async (reqBody: LoginDeviceParams): Promise<serviceResponse> => {
     try {
         const { email, device_id, device_type } = reqBody
-
         // Find user by email and include roles and permissions
         const userExists = await prisma.user.findUnique({
             where: { email },
@@ -87,17 +76,14 @@ export const loginService = async (reqBody: LoginDeviceParams): Promise<any> => 
             }
         })
         if (!userExists) return { success: false, message: 'User Not Found' }
-
         // Generate JWT tokens
         const payload: JwtPayload = { id: userExists.id }
         const accessToken = await generateAccessToken(payload)
         const refreshToken = await generateRefreshToken(payload)
-        
         // Handle multi-device login
         const deviceAlreadyLogin = await prisma.user_device.findFirst({
             where: { user_id: userExists.id, device_id }
         })
-
         if (deviceAlreadyLogin) {
             // Update existing device session
             const success = await prisma.user_device.update({
@@ -108,11 +94,16 @@ export const loginService = async (reqBody: LoginDeviceParams): Promise<any> => 
         } else {
             // Create new device session
             const success = await prisma.user_device.create({
-                data: { user_id: userExists.id, access_token: accessToken, refresh_token: refreshToken, device_id, device_type }
+                data: {
+                    user_id: userExists.id,
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    device_id,
+                    device_type
+                }
             })
             if (!success) return { success: false, message: 'User Not Found' }
         }
-
         // Clean response excluding sensitive data
         const cleanResponse = {
             id: userExists.id,
@@ -124,17 +115,15 @@ export const loginService = async (reqBody: LoginDeviceParams): Promise<any> => 
                 action: p.permission.action
             }))
         }
-
         return {
             success: true,
             message: "User login successfully",
             data: { accessToken, refreshToken }
         }
-    } catch (error: any) {
+    } catch (error) {
         throw error
     }
 }
-
 /**
  * @description Fetch details of the currently authenticated user
  * @param {JwtPayload} tokenUser - User info from JWT
@@ -151,55 +140,50 @@ export const userDetailsService = async (tokenUser: JwtPayload): Promise<service
                 email: true
             }
         })
-
         if (!userExists) return { success: false, message: "User Not Found" }
-
         return { success: true, message: "User Details", data: userExists }
     } catch (error) {
         throw error
     }
 }
-
 /**
  * @description Update user profile
  * @param {TargetParams} targetUser - Target user to update
  * @param {UpdateTargetUserParams} reqBody - Fields to update
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export const updateUserService = async (targetUser: TargetParams, reqBody: UpdateTargetUserParams): Promise<serviceResponse> => {
+export const updateUserService = async (
+    targetUserId: TargetParams,
+    reqBody: UpdateTargetUserParams
+): Promise<serviceResponse> => {
     try {
         const { first_name, last_name, username, email } = reqBody
-
         const success = await prisma.user.update({
             data: { first_name, last_name, username, email },
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         })
-
         if (!success) return { success: false, message: 'User Not Found' }
         return { success: true, message: "User updated successfully" }
-    } catch (error: any) {
+    } catch (error) {
         throw error
     }
 }
-
 /**
  * @description Delete a user from the system
  * @param {TargetParams} targetUser - User to delete
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export const deleteUserService = async (targetUser: TargetParams): Promise<serviceResponse> => {
+export const deleteUserService = async (targetUserId: TargetParams): Promise<serviceResponse> => {
     try {
         const success = await prisma.user.delete({
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         })
-
         if (!success) return { success: false, message: 'User Not Found' }
         return { success: true, message: "User deleted successfully" }
-    } catch (error: any) {
+    } catch (error) {
         throw error
     }
 }
-
 /**
  * @description Change a user's password
  * @param {TargetParams} targetUser - User whose password will be changed
@@ -207,26 +191,22 @@ export const deleteUserService = async (targetUser: TargetParams): Promise<servi
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
 export const changePasswordService = async (
-    targetUser: TargetParams,
+    targetUserId: TargetParams,
     reqBody: ChangeTargetUserPasswordParams
 ): Promise<serviceResponse> => {
     try {
         const { new_password } = reqBody
         const hashPassword: string = await bcrypt.hash(new_password, 10)
-
         const success = await prisma.user.update({
             data: { password: hashPassword },
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         })
-
         if (!success) return { success: false, message: 'User Not Found' }
         return { success: true, message: "Password changed successfully" }
-    } catch (error: any) {
+    } catch (error) {
         throw error
     }
 }
-
-
 /**
  * Service to refresh access and refresh tokens for a user device.
  * Validates the provided refresh token, checks it in the database, generates new tokens,
@@ -236,91 +216,84 @@ export const changePasswordService = async (
  * @returns serviceResponse - Success or failure message with new tokens if successful
  */
 export const refreshTokenService = async (
-  reqBody: RefreshTokenParams
+    reqBody: RefreshTokenParams
 ): Promise<serviceResponse> => {
-
-    // Extract the refresh token from the request body
-    const { refresh_token } = reqBody;
-
-    // Return early if no refresh token is provided
-    if (!refresh_token) {
-        return {
-            success: false,
-            message: "Unauthorized", // Cannot proceed without a token
-        };
-    }
-
-    // Verify the refresh token using the verifyRefreshToken helper
-    // Returns decoded payload if valid, false if invalid or expired
-    const payload = await verifyRefreshToken(refresh_token);
-
-    // Type guard: If the token is invalid, return unauthorized
-    if (!payload) {
-        return {
-            success: false,
-            message: "Unauthorized", // Token verification failed
-        };
-    }
-
-    // Check if this refresh token exists in the database for the user and device
-    // This prevents reuse of tokens that may have been revoked or belong to a different device
-    const dbToken = await prisma.user_device.findFirst({
-        where: {
-            user_id: payload.id,
-            refresh_token: refresh_token,
+    try {
+        // Extract the refresh token from the request body
+        const { refresh_token } = reqBody;
+        // Return early if no refresh token is provided
+        if (!refresh_token) {
+            return {
+                success: false,
+                message: "Unauthorized", // Cannot proceed without a token
+            };
         }
-    });
-
-    // If no record is found, the token is invalid for this device/user
-    if (!dbToken) {
-        return {
-            success: false,
-            message: "Unauthorized", // Token not recognized in DB
-        };
-    }
-
-    // Prepare a minimal payload object for token generation
-    // Only includes the user ID, as this is all we need to encode in JWT
-    const userid: JwtPayload = { id: payload.id }
-
-    // Generate new access and refresh tokens
-    // These will replace the old tokens in the database
-    const newAccessToken = await generateAccessToken(userid);
-    const newRefreshToken = await generateRefreshToken(userid);
-
-    // Update the device record in the database with the new tokens
-    // Using composite key (user_id + device_id) to ensure correct record update
-    const updateDbToken = await prisma.user_device.update({
-        where: {
-            user_id_device_id: {
+        // Verify the refresh token using the verifyRefreshToken helper
+        // Returns decoded payload if valid, false if invalid or expired
+        const payload = await verifyRefreshToken(refresh_token);
+        // Type guard: If the token is invalid, return unauthorized
+        if (!payload) {
+            return {
+                success: false,
+                message: "Unauthorized", // Token verification failed
+            };
+        }
+        // Check if this refresh token exists in the database for the user and device
+        // This prevents reuse of tokens that may have been revoked or belong to a different device
+        const dbToken = await prisma.user_device.findFirst({
+            where: {
                 user_id: payload.id,
-                device_id: dbToken.device_id
+                refresh_token: refresh_token,
             }
-        },
-        data: {
-            access_token: newAccessToken,
-            refresh_token: newRefreshToken,
-        },
-    });
-
-    // If the database update failed for any reason, return unauthorized
-    // This ensures that tokens are only considered valid if successfully stored
-    if (!updateDbToken) {
+        });
+        // If no record is found, the token is invalid for this device/user
+        if (!dbToken) {
+            return {
+                success: false,
+                message: "Unauthorized", // Token not recognized in DB
+            };
+        }
+        // Prepare a minimal payload object for token generation
+        // Only includes the user ID, as this is all we need to encode in JWT
+        const userid: JwtPayload = { id: payload.id }
+        // Generate new access and refresh tokens
+        // These will replace the old tokens in the database
+        const newAccessToken = await generateAccessToken(userid);
+        const newRefreshToken = await generateRefreshToken(userid);
+        // Update the device record in the database with the new tokens
+        // Using composite key (user_id + device_id) to ensure correct record update
+        const updateDbToken = await prisma.user_device.update({
+            where: {
+                user_id_device_id: {
+                    user_id: payload.id,
+                    device_id: dbToken.device_id
+                }
+            },
+            data: {
+                access_token: newAccessToken,
+                refresh_token: newRefreshToken,
+            },
+        });
+        // If the database update failed for any reason, return unauthorized
+        // This ensures that tokens are only considered valid if successfully stored
+        if (!updateDbToken) {
+            return {
+                success: false,
+                message: "Unauthorized",
+            };
+        }
+        // Return success response with the newly generated tokens
+        // Client can now use these tokens to authenticate future requests
         return {
-            success: false,
-            message: "Unauthorized",
-        };
-    }
-
-    // Return success response with the newly generated tokens
-    // Client can now use these tokens to authenticate future requests
-    return {
-        success: true,
-        message: "Re-generated Access Token And Refresh Token",
-        data: {
-            new_access_token: newAccessToken,
-            new_refresh_token: newRefreshToken,
-        },
+            success: true,
+            message: "Re-generated Access Token And Refresh Token",
+            data: {
+                new_access_token: newAccessToken,
+                new_refresh_token: newRefreshToken,
+            },
+        }
+    } catch (error) {
+        throw (error)
     }
 }
 

@@ -42,7 +42,5 @@ export interface serviceResponse<T = object> {
     message: string;
     data?: T;
 }
-export interface TargetParams {
-    id: number;
-}
+export type TargetParams = number;
 //# sourceMappingURL=common.types.d.ts.map

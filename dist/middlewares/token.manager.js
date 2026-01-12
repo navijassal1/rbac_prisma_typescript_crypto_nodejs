@@ -4,7 +4,7 @@ import pkg from 'jsonwebtoken';
 // Internal modules
 import { JWT } from "../constants/backend.js";
 import prisma from "../lib/prisma.client.js";
-import { forbidden, unauthorized } from "../helpers/helper.js";
+import { unauthorized } from "../helpers/helper.js";
 import { Roles } from "../enums/enums.js";
 import { decryptedPayload, encrytPayload } from "../services/crypto.services.js";
 const { JsonWebTokenError } = pkg;

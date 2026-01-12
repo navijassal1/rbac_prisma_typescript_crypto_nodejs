@@ -14,7 +14,7 @@ export const signUp = async (req, res) => {
         const result = await signUpService(reqBody);
         if (!result.success)
             return response(res, STATUS.BAD_REQUEST, false, result.message);
-        // return response(res, STATUS.CREATED, true, result.message, result.data)
+        return response(res, STATUS.CREATED, true, result.message, result.data);
         // return 'string'
     }
     catch (e) {
@@ -46,8 +46,6 @@ export const login = async (req, res) => {
  */
 export const userDetails = async (req, res) => {
     try {
-        if (!req.tokenUser)
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
         const tokenUser = req.tokenUser;
         const result = await userDetailsService(tokenUser);
         if (!result.success)
@@ -66,11 +64,9 @@ export const userDetails = async (req, res) => {
  */
 export const updateUser = async (req, res) => {
     try {
-        if (!req.targetUserId)
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
-        const targetUser = { id: req.targetUserId };
+        const targetUserId = req.targetUserId;
         const reqBody = req.body;
-        const result = await updateUserService(targetUser, reqBody);
+        const result = await updateUserService(targetUserId, reqBody);
         if (!result.success)
             return response(res, STATUS.NOT_FOUND, false, result.message);
         return response(res, STATUS.SUCCESS, true, result.message);
@@ -86,10 +82,8 @@ export const updateUser = async (req, res) => {
  */
 export const deleteUser = async (req, res) => {
     try {
-        if (!req.targetUserId)
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
-        const targetUser = { id: req.targetUserId };
-        const result = await deleteUserService(targetUser);
+        const targetUserId = req.targetUserId;
+        const result = await deleteUserService(targetUserId);
         if (!result.success)
             return response(res, STATUS.NOT_FOUND, false, result.message);
         return response(res, STATUS.SUCCESS, true, result.message);
@@ -106,11 +100,9 @@ export const deleteUser = async (req, res) => {
  */
 export const changePassword = async (req, res) => {
     try {
-        if (!req.targetUserId)
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
-        const targetUser = { id: req.targetUserId };
+        const targetUserId = req.targetUserId;
         const reqBody = req.body;
-        const result = await changePasswordService(targetUser, reqBody);
+        const result = await changePasswordService(targetUserId, reqBody);
         if (!result.success)
             return response(res, STATUS.NOT_FOUND, false, result.message);
         return response(res, STATUS.SUCCESS, true, result.message);

@@ -59,7 +59,6 @@ export const validateResult = (req: Request, res: Response, next: NextFunction) 
             errorMessage,
         });
     }
-
     // No validation errors → continue to next middleware/controller
     next();
 };

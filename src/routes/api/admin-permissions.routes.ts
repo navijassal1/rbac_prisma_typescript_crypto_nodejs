@@ -1,19 +1,4 @@
-/**
- * Admin Permission Routes
- * ---------------------------------------------------
- * This router handles all admin-level RBAC operations:
- * - Listing users, roles, and permissions
- * - Viewing user permissions
- * - Granting roles and permissions
- *
- * All routes are protected by JWT authentication
- * and role-based authorization (RBAC).
- */
-
-// ---------------------------------------------------
 // Imports
-// ---------------------------------------------------
-
 // Express router
 import { Router } from "express";
 
@@ -26,7 +11,6 @@ import {
   grantPermissions,       // Assign permissions to a user
   grantRoles              // Assign roles to a user
 } from "../../controllers/admin.permissions.controller.js";
-
 
 // RBAC enums
 import { Resource, Action } from "../../enums/enums.js";
@@ -41,14 +25,10 @@ import {
   attachTargetUser           // Attaches target user to request object
 } from "../../validations/admin-permissions.validations.js";
 
-// Middleware to handle validation result errors
-import { validateResult } from "../../utils/validation.result.middleware.js";
-
 // ---------------------------------------------------
 // Router Initialization
 // ---------------------------------------------------
 const adminPermissionRouter = Router();
-
 // ---------------------------------------------------
 // Routes
 // ---------------------------------------------------
@@ -62,7 +42,6 @@ adminPermissionRouter.get(
   authorize([Resource.SYSTEM], [Action.READ]),
   listUsers
 );
-
 /**
  * @route   GET /list-permissions
  * @desc    List all available permissions in the system
@@ -73,7 +52,6 @@ adminPermissionRouter.get(
   authorize([Resource.SYSTEM], [Action.READ]),
   listPermissions
 );
-
 /**
  * @route   GET /list-roles
  * @desc    List all roles available in the system
@@ -84,7 +62,6 @@ adminPermissionRouter.get(
   authorize([Resource.SYSTEM], [Action.READ]),
   listRoles
 );
-
 /**
  * @route   GET /users/:user_id/permissions
  * @desc    Get permissions assigned to a specific user
@@ -96,7 +73,6 @@ adminPermissionRouter.get(
   attachTargetUser,       // Ensure target user exists and attach to request
   getUserPermissions
 );
-
 /**
  * @route   PUT /permissions
  * @desc    Grant permissions to a user
@@ -108,7 +84,6 @@ adminPermissionRouter.put(
   adminPermissionValidation, // Validate permission payload
   grantPermissions
 );
-
 /**
  * @route   PUT /roles
  * @desc    Grant roles to a user

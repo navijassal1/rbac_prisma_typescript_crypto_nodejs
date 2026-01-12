@@ -23,7 +23,6 @@ import { Resource, Action } from "../../enums/enums.js";
 
 // Create a router instance for protected user routes
 const userProtectedRouter = Router();
-
 // Route: Update a user
 // Permissions: USER resource, CREATE action
 // Middleware attachTargetUser ensures we know which user is being updated
@@ -34,7 +33,6 @@ userProtectedRouter.put(
   attachTargetUser,
   updateUser
 );
-
 // Route: Get user details of the current user
 // Permissions: USER resource, READ action
 // Endpoint: GET /api/users/user-details
@@ -43,7 +41,6 @@ userProtectedRouter.get(
   authorize([Resource.USER], [Action.READ]),
   userDetails
 );
-
 // Route: Change password for a user
 // Permissions: USER resource, UPDATE action
 // Validates new password and attaches target user
@@ -55,7 +52,6 @@ userProtectedRouter.patch(
   ChangePasswordValidation,
   changePassword
 );
-
 // Route: Delete a user
 // Permissions: USER resource, DELETE action
 // Middleware attachTargetUser ensures the correct user is targeted
@@ -66,6 +62,5 @@ userProtectedRouter.delete(
   attachTargetUser,
   deleteUser
 );
-
 // Export the protected user router
 export default userProtectedRouter;

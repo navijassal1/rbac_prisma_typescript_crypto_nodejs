@@ -1,4 +1,5 @@
 import { STATUS } from '../enums/enums.js'
+
 import type { ErrorHandlerParams } from '../types/common.types.js'
 
 /**
@@ -13,9 +14,6 @@ import type { ErrorHandlerParams } from '../types/common.types.js'
 export const errorHandler: ErrorHandlerParams = (err, res):object => {
     // Log the error to console for debugging
     console.error(err)
-
-    // Use error status if available, otherwise default to 500 (Internal Server Error)
-
     // Send a standardized error response
     return res.status(STATUS.SERVER_ERROR).json({ 
         success: false, 

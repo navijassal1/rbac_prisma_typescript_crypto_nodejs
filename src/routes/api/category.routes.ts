@@ -39,7 +39,6 @@ categoryProtectedRouter.get(
   authorize([Resource.CATEGORY], [Action.READ]),
   listCategories
 );
-
 // Route: Create a new category for a user
 // Permissions: CATEGORY resource, CREATE action
 // Validates request body before creation
@@ -50,7 +49,6 @@ categoryProtectedRouter.post(
   createCategoryValidation,
   createCategories
 );
-
 // Route: Get details of a specific category
 // Permissions: CATEGORY resource, READ action
 // attachTargetCategory ensures the category exists
@@ -61,7 +59,6 @@ categoryProtectedRouter.get(
   attachTargetCategory,
   categoryDetails
 );
-
 // Route: Update a specific category
 // Permissions: CATEGORY resource, UPDATE action
 // attachTargetCategory ensures correct category is targeted
@@ -72,7 +69,6 @@ categoryProtectedRouter.put(
   attachTargetCategory,
   updateCategory
 );
-
 // Route: Delete a specific category
 // Permissions: CATEGORY resource, DELETE action
 // attachTargetUser and attachTargetCategory ensure correct user and category are targeted
@@ -84,6 +80,5 @@ categoryProtectedRouter.delete(
   attachTargetCategory,
   deleteCategory
 );
-
 // Export protected category router
 export default categoryProtectedRouter;

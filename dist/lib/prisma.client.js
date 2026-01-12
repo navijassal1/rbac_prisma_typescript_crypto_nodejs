@@ -5,7 +5,6 @@ import { DB } from "../constants/backend.js";
  * PrismaMariaDb connection configuration.
  * Using the DB constants loaded from environment variables.
  */
-const db = DB;
 const connection = new PrismaMariaDb({
     database: DB.NAME, // Database name
     user: DB.USER, // Database username

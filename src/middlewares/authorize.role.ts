@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
 // Helper functions to send HTTP 401/403 responses
-import { unauthorized, forbidden } from "../helpers/helper.js";
+import { forbidden } from "../helpers/helper.js";
 
 // Import enums for Resource and Action
 import type { Resource, Action } from "../enums/enums.js";
@@ -21,12 +21,10 @@ export const authorize = (allowedResources: Resource[], allowedActions: Action[]
     console.log("----------START-----------");
     // The authenticated user should be attached to req.tokenUser by previous JWT middleware
     const user = req.tokenUser;
-
     // Debug logs for development (remove or disable in production)
     console.log(user, "user\n");
     console.log(allowedResources, "allowedResources\n");
     console.log(allowedActions, "allowedActions\n");
-
     // Query user permissions from the database
     // Only fetch permissions matching allowed resources and actions
     const userPermissions = await prisma.user_permission.findMany({
@@ -41,15 +39,12 @@ export const authorize = (allowedResources: Resource[], allowedActions: Action[]
         permission: { select: { id: true, resource: true, action: true } },
       },
     });
-
     console.log(userPermissions, "userPermissions");
     console.log("----------END-----------");
-
     // If the user has no matching permissions, return 403 Forbidden
     if (userPermissions.length === 0) {
       return forbidden(res);
     }
-
     // User has required permission, proceed to next middleware/controller
     next();
   };

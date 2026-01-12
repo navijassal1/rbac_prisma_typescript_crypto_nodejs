@@ -13,7 +13,6 @@ export enum STATUS {
     CONFLICT = 409,  
     FORBIDDEN=403       // Conflict (e.g., duplicate resource)
 }
-
 /**
  * User roles in the system.
  * These are used for both authentication and role-based access control (RBAC).
@@ -24,7 +23,6 @@ export enum Roles {
     VENDOR = "VENDOR",          // Vendor-specific access
     USER = "USER",               // Regular user access
 }
-
 /**
  * Resources that can be protected with RBAC.
  * Used together with `Action` in the `authorize` middleware.
@@ -34,7 +32,6 @@ export enum Resource {
     USER = "USER",       // User management resources
     CATEGORY = "CATEGORY", // Category management resources
 }
-
 /**
  * Actions that can be performed on resources.
  * Combined with `Resource` to define fine-grained permissions.

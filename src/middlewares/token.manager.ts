@@ -1,15 +1,23 @@
 // External modules
 import jwt from "jsonwebtoken";
+
 import pkg from 'jsonwebtoken';
 
 // Internal modules
 import { JWT } from "../constants/backend.js";
+
 import prisma from "../lib/prisma.client.js";
+
 import type { StringValue } from "ms";
-import type { ExpressMiddlewareParams, serviceResponse } from "../types/common.types.js";
-import { forbidden, unauthorized } from "../helpers/helper.js";
-import type { JwtPayload, TokenUserParams } from "../types/user.types.js";
+
+import type { ExpressMiddlewareParams } from "../types/common.types.js";
+
+import { unauthorized } from "../helpers/helper.js";
+
+import type { JwtPayload } from "../types/user.types.js";
+
 import { Roles } from "../enums/enums.js";
+
 import { decryptedPayload, encrytPayload } from "../services/crypto.services.js";
 
 const { JsonWebTokenError } = pkg;
@@ -23,19 +31,15 @@ export const generateAccessToken = async (user: JwtPayload): Promise<string> => 
     const encryptedPayload = encrytPayload(user)
     return jwt.sign({ data: encryptedPayload }, JWT.SECRET_KEY, { expiresIn: JWT.ACCESS_TOKEN_LIFE as StringValue });
 }
-
 /**
  * @description Generates a JWT refresh token for a given user
  * @param {JwtPayload} user - The user payload (must include at least an `id`)
  * @returns {string} Signed JWT refresh token
 */
 export const generateRefreshToken = async (user: JwtPayload): Promise<string> => {
-
     const encryptedPayload = encrytPayload(user)
-
     return jwt.sign({ data: encryptedPayload }, JWT.SECRET_KEY, { expiresIn: JWT.REFRESH_TOKEN_LIFE as StringValue });
 }
-
 /**
  * @description Express middleware to verify JWT access tokens
  * - Extracts token from `Authorization` header (Bearer token)
@@ -52,25 +56,19 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promi
     try {
         // Extract Authorization header
         const authorization = req.headers.authorization;
-
         // No token or wrong format => 401 Unauthorized
         if (!authorization || !authorization.startsWith('Bearer')) {
             return unauthorized(res);
         }
-
         // Extract token string
         const token = authorization.split(' ')[1];
         if (!token) return unauthorized(res);
-
         // Verify JWT token
         const decoded = await jwt.verify(token, JWT.SECRET_KEY) as { data: string };
-
         // console.log(typeof decoded)
         // console.log(decoded, 'token')
         if (!decoded || typeof decoded === 'string') return unauthorized(res); // payload should be object
-
         const originalPayload:{id:number} = decryptedPayload(decoded.data)
-      
         // // Check if user exists in database
         const userExists = await prisma.user.findUnique({
             where: { id: originalPayload.id },
@@ -82,24 +80,18 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promi
                 permissions: { select: { permission_id: true } },
             },
         });
-        
         if (!userExists) return unauthorized(res);
-        
         // // Check if token exists in `user_device` table (active login session)
         const userLogined = await prisma.user_device.findFirst({
             where: { user_id: originalPayload.id, access_token: token },
         });
-        
         if (!userLogined) return unauthorized(res);
-        
         // Map user roles and permissions
         const userRole = userExists.roles.map((r) => r.role.name);
         const userPermissions = userExists.permissions.map((p) => p.permission_id);
-        
         // Attach user info to request for downstream middleware/controllers
         req.tokenUser = { id: userExists.id, role: userRole as Roles[] };
         // console.log(req.tokenUser, 'in middleware of token');
-        
         // Proceed to next middleware or controller
         next();
     } catch (error) {
@@ -113,7 +105,6 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promi
         return unauthorized(res);
     }
 };
-
 /**
  * Verifies a refresh token and returns the decoded payload if valid.
  * 
@@ -130,15 +121,12 @@ export const verifyRefreshToken = async (
     try {
         // Use jsonwebtoken's verify method to decode and validate the token
         const decode = jwt.verify(refreshToken, JWT.SECRET_KEY);
-
         // If decode is null or undefined, return false (invalid token)
         if (!decode) {
             return false;
         }
-
         // jwt.verify can return string or object; cast to JwtPayload interface
         return decode as JwtPayload;
-
     } catch (e) {
         // If an error occurs (token expired, malformed, invalid signature),
         // return false to indicate the token cannot be trusted

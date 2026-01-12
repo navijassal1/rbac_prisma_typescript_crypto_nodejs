@@ -26,12 +26,12 @@ import { errorHandler } from '../middlewares/error.handler.js'
  * @access Public
  * @body { SignupReqParams } - Registration details
  */
-export const signUp: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn> => {
+export const signUp: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
         const reqBody: SignupReqParams = req.body
         const result: serviceResponse = await signUpService(reqBody)
         if (!result.success) return response(res, STATUS.BAD_REQUEST, false, result.message)
-        // return response(res, STATUS.CREATED, true, result.message, result.data)
+        return response(res, STATUS.CREATED, true, result.message, result.data)
         // return 'string'
     } catch (e) {
         return errorHandler(e as Error, res)
@@ -43,7 +43,7 @@ export const signUp: ExpressMiddlewareParams = async (req, res):Promise<ApiRespo
  * @access Public
  * @body { LoginDeviceParams } - Email, password, device info
  */
-export const login: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const login: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
         const reqBody: LoginDeviceParams = req.body
         const result: serviceResponse = await loginService(reqBody)
@@ -58,10 +58,8 @@ export const login: ExpressMiddlewareParams = async (req, res):Promise<ApiRespon
  * @route GET /users/me
  * @access Protected (requires tokenUser)
  */
-export const userDetails: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const userDetails: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
-        if (!req.tokenUser) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-
         const tokenUser: JwtPayload = req.tokenUser
         const result: serviceResponse = await userDetailsService(tokenUser)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
@@ -76,12 +74,11 @@ export const userDetails: ExpressMiddlewareParams = async (req, res):Promise<Api
  * @access Protected
  * @body { UpdateTargetUserParams } - Fields to update
  */
-export const updateUser: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const updateUser: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
-        if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-        const targetUser: TargetParams = { id: req.targetUserId }
+        const targetUserId: TargetParams = req.targetUserId
         const reqBody: UpdateTargetUserParams = req.body
-        const result: serviceResponse = await updateUserService(targetUser, reqBody)
+        const result: serviceResponse = await updateUserService(targetUserId, reqBody)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
@@ -93,11 +90,10 @@ export const updateUser: ExpressMiddlewareParams = async (req, res):Promise<ApiR
  * @route DELETE /users/:userId
  * @access Protected/Admin
  */
-export const deleteUser: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const deleteUser: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
-        if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-        const targetUser: TargetParams = { id: req.targetUserId }
-        const result: serviceResponse = await deleteUserService(targetUser)
+        const targetUserId: TargetParams = req.targetUserId
+        const result: serviceResponse = await deleteUserService(targetUserId)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
@@ -110,12 +106,11 @@ export const deleteUser: ExpressMiddlewareParams = async (req, res):Promise<ApiR
  * @access Protected
  * @body { ChangeTargetUserPasswordParams } - Contains new_password
  */
-export const changePassword: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const changePassword: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
-        if (!req.targetUserId) return response(res, STATUS.BAD_REQUEST, false, "Target user not set")
-        const targetUser: TargetParams = { id: req.targetUserId }
+        const targetUserId: TargetParams = req.targetUserId
         const reqBody: ChangeTargetUserPasswordParams = req.body
-        const result: serviceResponse = await changePasswordService(targetUser, reqBody)
+        const result: serviceResponse = await changePasswordService(targetUserId, reqBody)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
         return response(res, STATUS.SUCCESS, true, result.message)
     } catch (e) {
@@ -131,7 +126,7 @@ export const changePassword: ExpressMiddlewareParams = async (req, res):Promise<
  * @param res - Express response object used to send responses to the client
  * @param next - Express next function for passing errors to error-handling middleware
  */
-export const refreshAccessToken: ExpressMiddlewareParams = async (req, res):Promise<ApiResponseReturn>  => {
+export const refreshAccessToken: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
         // Extract the request body and type it as RefreshTokenParams
         // This ensures TypeScript knows we expect a refresh_token field

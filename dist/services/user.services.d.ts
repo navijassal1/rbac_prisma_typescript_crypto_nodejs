@@ -11,7 +11,7 @@ export declare const signUpService: (reqBody: SignupReqParams) => Promise<servic
  * @param {LoginDeviceParams} reqBody - Login credentials and device info
  * @returns {Promise<object>} - Returns success status, message, and tokens
  */
-export declare const loginService: (reqBody: LoginDeviceParams) => Promise<any>;
+export declare const loginService: (reqBody: LoginDeviceParams) => Promise<serviceResponse>;
 /**
  * @description Fetch details of the currently authenticated user
  * @param {JwtPayload} tokenUser - User info from JWT
@@ -24,20 +24,20 @@ export declare const userDetailsService: (tokenUser: JwtPayload) => Promise<serv
  * @param {UpdateTargetUserParams} reqBody - Fields to update
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export declare const updateUserService: (targetUser: TargetParams, reqBody: UpdateTargetUserParams) => Promise<serviceResponse>;
+export declare const updateUserService: (targetUserId: TargetParams, reqBody: UpdateTargetUserParams) => Promise<serviceResponse>;
 /**
  * @description Delete a user from the system
  * @param {TargetParams} targetUser - User to delete
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export declare const deleteUserService: (targetUser: TargetParams) => Promise<serviceResponse>;
+export declare const deleteUserService: (targetUserId: TargetParams) => Promise<serviceResponse>;
 /**
  * @description Change a user's password
  * @param {TargetParams} targetUser - User whose password will be changed
  * @param {ChangeTargetUserPasswordParams} reqBody - Contains new password
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export declare const changePasswordService: (targetUser: TargetParams, reqBody: ChangeTargetUserPasswordParams) => Promise<serviceResponse>;
+export declare const changePasswordService: (targetUserId: TargetParams, reqBody: ChangeTargetUserPasswordParams) => Promise<serviceResponse>;
 /**
  * Service to refresh access and refresh tokens for a user device.
  * Validates the provided refresh token, checks it in the database, generates new tokens,

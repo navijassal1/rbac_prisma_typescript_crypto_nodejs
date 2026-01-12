@@ -13,24 +13,21 @@ declare global {
        * Typically populated by session-based authentication (if used).
        */
       currentUser?: User;
-
       /**
        * The user extracted from a verified JWT token.
        * Populated by `verifyToken` middleware.
        */
       tokenUser: TokenUserParams;
-
       /**
        * Target user's ID for CRUD operations (update, delete, fetch details)
        * Populated by route param middleware (`attachTargetUser`)
        */
-      targetUserId?: number;
-
+      targetUserId: number;
       /**
        * Target category's ID for CRUD operations on categories
        * Populated by route param middleware (`attachTargetCategory`)
        */
-      targetCategoryId?: number;
+      targetCategoryId: number;
     }
   }
 }

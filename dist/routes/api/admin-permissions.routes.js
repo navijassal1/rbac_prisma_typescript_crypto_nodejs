@@ -1,17 +1,4 @@
-/**
- * Admin Permission Routes
- * ---------------------------------------------------
- * This router handles all admin-level RBAC operations:
- * - Listing users, roles, and permissions
- * - Viewing user permissions
- * - Granting roles and permissions
- *
- * All routes are protected by JWT authentication
- * and role-based authorization (RBAC).
- */
-// ---------------------------------------------------
 // Imports
-// ---------------------------------------------------
 // Express router
 import { Router } from "express";
 // Controllers for admin permission management
@@ -31,8 +18,6 @@ import { adminPermissionValidation, // Validation rules for permission assignmen
 adminRolesValidation, // Validation rules for role assignment
 attachTargetUser // Attaches target user to request object
  } from "../../validations/admin-permissions.validations.js";
-// Middleware to handle validation result errors
-import { validateResult } from "../../utils/validation.result.middleware.js";
 // ---------------------------------------------------
 // Router Initialization
 // ---------------------------------------------------

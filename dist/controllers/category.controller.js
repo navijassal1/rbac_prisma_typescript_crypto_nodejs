@@ -9,11 +9,8 @@ import { errorHandler } from '../middlewares/error.handler.js';
  */
 export const listCategories = async (req, res) => {
     try {
-        if (!req.targetUserId) {
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
-        }
-        const targetUser = { id: req.targetUserId };
-        const result = await listCategoriesService(targetUser);
+        const targetUserId = req.targetUserId;
+        const result = await listCategoriesService(targetUserId);
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message);
         }
@@ -31,12 +28,9 @@ export const listCategories = async (req, res) => {
  */
 export const createCategories = async (req, res) => {
     try {
-        if (!req.targetUserId) {
-            return response(res, STATUS.BAD_REQUEST, false, "Target user not set");
-        }
-        const targetUser = { id: req.targetUserId };
+        const targetUserId = req.targetUserId;
         const categoryName = req.body;
-        const result = await createCategoriesService(targetUser, categoryName);
+        const result = await createCategoriesService(targetUserId, categoryName);
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message);
         }
@@ -53,10 +47,7 @@ export const createCategories = async (req, res) => {
  */
 export const categoryDetails = async (req, res) => {
     try {
-        if (!req.targetUserId || !req.targetCategoryId) {
-            return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set");
-        }
-        const targetCategoryId = { id: req.targetCategoryId };
+        const targetCategoryId = req.targetCategoryId;
         const result = await categoryDetailsService(targetCategoryId);
         if (!result.success) {
             return response(res, STATUS.NOT_FOUND, false, result.message);
@@ -75,12 +66,9 @@ export const categoryDetails = async (req, res) => {
  */
 export const updateCategory = async (req, res) => {
     try {
-        if (!req.targetUserId || !req.targetCategoryId) {
-            return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set");
-        }
-        const targetCategory = { id: req.targetCategoryId };
+        const targetCategoryId = req.targetCategoryId;
         const reqBody = req.body;
-        const result = await updateCategoryService(targetCategory, reqBody);
+        const result = await updateCategoryService(targetCategoryId, reqBody);
         if (!result.success) {
             return response(res, STATUS.NOT_FOUND, false, result.message);
         }
@@ -97,11 +85,8 @@ export const updateCategory = async (req, res) => {
  */
 export const deleteCategory = async (req, res) => {
     try {
-        if (!req.targetUserId || !req.targetCategoryId) {
-            return response(res, STATUS.BAD_REQUEST, false, "Target user or category not set");
-        }
-        const targetCategory = { id: req.targetCategoryId };
-        const result = await deleteCategoryService(targetCategory);
+        const targetCategoryId = req.targetCategoryId;
+        const result = await deleteCategoryService(targetCategoryId);
         if (!result.success) {
             return response(res, STATUS.NOT_FOUND, false, result.message);
         }

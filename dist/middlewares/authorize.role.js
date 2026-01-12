@@ -1,5 +1,5 @@
 // Helper functions to send HTTP 401/403 responses
-import { unauthorized, forbidden } from "../helpers/helper.js";
+import { forbidden } from "../helpers/helper.js";
 // Prisma client for database access
 import prisma from "../lib/prisma.client.js";
 /**

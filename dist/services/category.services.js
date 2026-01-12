@@ -5,10 +5,10 @@ import { generateUniqueSlug } from "../utils/slug.js";
  * @param {TargetParams} targetUser - User whose categories are being fetched
  * @returns {Promise<serviceResponse>} - Success status, message, and list of categories
  */
-export const listCategoriesService = async (targetUser) => {
+export const listCategoriesService = async (targetUserId) => {
     try {
         const listCategories = await prisma.user.findUnique({
-            where: { id: targetUser.id },
+            where: { id: targetUserId },
             select: {
                 id: true,
                 username: true,
@@ -41,13 +41,13 @@ export const listCategoriesService = async (targetUser) => {
  * @param {CategoryNameParams} categoryName - Name of the new category
  * @returns {Promise<serviceResponse>} - Success status and message
  */
-export const createCategoriesService = async (targetUser, categoryName) => {
+export const createCategoriesService = async (targetUserId, categoryName) => {
     try {
         const { category_name } = categoryName;
         // Generate a unique slug for the category
         const slug = await generateUniqueSlug(category_name);
         const success = await prisma.category.create({
-            data: { user_id: targetUser.id, category_name, slug }
+            data: { user_id: targetUserId, category_name, slug }
         });
         if (!success) {
             return { success: false, message: 'Category not created' };
@@ -66,7 +66,7 @@ export const createCategoriesService = async (targetUser, categoryName) => {
 export const categoryDetailsService = async (targetCategoryId) => {
     try {
         const success = await prisma.category.findFirst({
-            where: { id: targetCategoryId.id },
+            where: { id: targetCategoryId },
             select: {
                 id: true,
                 category_name: true,
@@ -93,12 +93,12 @@ export const categoryDetailsService = async (targetCategoryId) => {
  * @param {CategoryNameParams} categoryName - New category name
  * @returns {Promise<serviceResponse>} - Success status and message
  */
-export const updateCategoryService = async (targetCategory, categoryName) => {
+export const updateCategoryService = async (targetCategoryId, categoryName) => {
     try {
         const { category_name } = categoryName;
         const slug = await generateUniqueSlug(category_name); // generate unique slug
         const success = await prisma.category.update({
-            where: { id: targetCategory.id },
+            where: { id: targetCategoryId },
             data: { category_name, slug }
         });
         if (!success) {
@@ -115,10 +115,10 @@ export const updateCategoryService = async (targetCategory, categoryName) => {
  * @param {TargetParams} targetCategory - Category to soft delete
  * @returns {Promise<serviceResponse>} - Success status and message
  */
-export const deleteCategoryService = async (targetCategory) => {
+export const deleteCategoryService = async (targetCategoryId) => {
     try {
         const success = await prisma.category.update({
-            where: { id: targetCategory.id },
+            where: { id: targetCategoryId },
             data: {
                 deleted_at: new Date(),
                 is_deleted: true

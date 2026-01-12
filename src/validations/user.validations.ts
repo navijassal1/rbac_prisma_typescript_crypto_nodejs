@@ -174,14 +174,11 @@ export const refreshTokenValidation = [
  */
 export const attachTargetUser: ExpressMiddlewareParams = async (req, res, next):Promise<ApiResponseReturn> => {
   const username = req.params.username as string;
-
   const userExist = await prisma.user.findUnique({
     where: { username },
     select: { id: true }
   });
-
   if (!userExist) return response(res, STATUS.NOT_FOUND, false, 'User Not Found');
-
   req.targetUserId = userExist.id;
   next();
 };

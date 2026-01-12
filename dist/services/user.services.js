@@ -90,7 +90,13 @@ export const loginService = async (reqBody) => {
         else {
             // Create new device session
             const success = await prisma.user_device.create({
-                data: { user_id: userExists.id, access_token: accessToken, refresh_token: refreshToken, device_id, device_type }
+                data: {
+                    user_id: userExists.id,
+                    access_token: accessToken,
+                    refresh_token: refreshToken,
+                    device_id,
+                    device_type
+                }
             });
             if (!success)
                 return { success: false, message: 'User Not Found' };
@@ -146,12 +152,12 @@ export const userDetailsService = async (tokenUser) => {
  * @param {UpdateTargetUserParams} reqBody - Fields to update
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export const updateUserService = async (targetUser, reqBody) => {
+export const updateUserService = async (targetUserId, reqBody) => {
     try {
         const { first_name, last_name, username, email } = reqBody;
         const success = await prisma.user.update({
             data: { first_name, last_name, username, email },
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         });
         if (!success)
             return { success: false, message: 'User Not Found' };
@@ -166,10 +172,10 @@ export const updateUserService = async (targetUser, reqBody) => {
  * @param {TargetParams} targetUser - User to delete
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export const deleteUserService = async (targetUser) => {
+export const deleteUserService = async (targetUserId) => {
     try {
         const success = await prisma.user.delete({
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         });
         if (!success)
             return { success: false, message: 'User Not Found' };
@@ -185,13 +191,13 @@ export const deleteUserService = async (targetUser) => {
  * @param {ChangeTargetUserPasswordParams} reqBody - Contains new password
  * @returns {Promise<serviceResponse>} - Returns success status and message
  */
-export const changePasswordService = async (targetUser, reqBody) => {
+export const changePasswordService = async (targetUserId, reqBody) => {
     try {
         const { new_password } = reqBody;
         const hashPassword = await bcrypt.hash(new_password, 10);
         const success = await prisma.user.update({
             data: { password: hashPassword },
-            where: { id: targetUser.id }
+            where: { id: targetUserId }
         });
         if (!success)
             return { success: false, message: 'User Not Found' };
@@ -210,78 +216,83 @@ export const changePasswordService = async (targetUser, reqBody) => {
  * @returns serviceResponse - Success or failure message with new tokens if successful
  */
 export const refreshTokenService = async (reqBody) => {
-    // Extract the refresh token from the request body
-    const { refresh_token } = reqBody;
-    // Return early if no refresh token is provided
-    if (!refresh_token) {
-        return {
-            success: false,
-            message: "Unauthorized", // Cannot proceed without a token
-        };
-    }
-    // Verify the refresh token using the verifyRefreshToken helper
-    // Returns decoded payload if valid, false if invalid or expired
-    const payload = await verifyRefreshToken(refresh_token);
-    // Type guard: If the token is invalid, return unauthorized
-    if (!payload) {
-        return {
-            success: false,
-            message: "Unauthorized", // Token verification failed
-        };
-    }
-    // Check if this refresh token exists in the database for the user and device
-    // This prevents reuse of tokens that may have been revoked or belong to a different device
-    const dbToken = await prisma.user_device.findFirst({
-        where: {
-            user_id: payload.id,
-            refresh_token: refresh_token,
+    try {
+        // Extract the refresh token from the request body
+        const { refresh_token } = reqBody;
+        // Return early if no refresh token is provided
+        if (!refresh_token) {
+            return {
+                success: false,
+                message: "Unauthorized", // Cannot proceed without a token
+            };
         }
-    });
-    // If no record is found, the token is invalid for this device/user
-    if (!dbToken) {
-        return {
-            success: false,
-            message: "Unauthorized", // Token not recognized in DB
-        };
-    }
-    // Prepare a minimal payload object for token generation
-    // Only includes the user ID, as this is all we need to encode in JWT
-    const userid = { id: payload.id };
-    // Generate new access and refresh tokens
-    // These will replace the old tokens in the database
-    const newAccessToken = await generateAccessToken(userid);
-    const newRefreshToken = await generateRefreshToken(userid);
-    // Update the device record in the database with the new tokens
-    // Using composite key (user_id + device_id) to ensure correct record update
-    const updateDbToken = await prisma.user_device.update({
-        where: {
-            user_id_device_id: {
+        // Verify the refresh token using the verifyRefreshToken helper
+        // Returns decoded payload if valid, false if invalid or expired
+        const payload = await verifyRefreshToken(refresh_token);
+        // Type guard: If the token is invalid, return unauthorized
+        if (!payload) {
+            return {
+                success: false,
+                message: "Unauthorized", // Token verification failed
+            };
+        }
+        // Check if this refresh token exists in the database for the user and device
+        // This prevents reuse of tokens that may have been revoked or belong to a different device
+        const dbToken = await prisma.user_device.findFirst({
+            where: {
                 user_id: payload.id,
-                device_id: dbToken.device_id
+                refresh_token: refresh_token,
             }
-        },
-        data: {
-            access_token: newAccessToken,
-            refresh_token: newRefreshToken,
-        },
-    });
-    // If the database update failed for any reason, return unauthorized
-    // This ensures that tokens are only considered valid if successfully stored
-    if (!updateDbToken) {
+        });
+        // If no record is found, the token is invalid for this device/user
+        if (!dbToken) {
+            return {
+                success: false,
+                message: "Unauthorized", // Token not recognized in DB
+            };
+        }
+        // Prepare a minimal payload object for token generation
+        // Only includes the user ID, as this is all we need to encode in JWT
+        const userid = { id: payload.id };
+        // Generate new access and refresh tokens
+        // These will replace the old tokens in the database
+        const newAccessToken = await generateAccessToken(userid);
+        const newRefreshToken = await generateRefreshToken(userid);
+        // Update the device record in the database with the new tokens
+        // Using composite key (user_id + device_id) to ensure correct record update
+        const updateDbToken = await prisma.user_device.update({
+            where: {
+                user_id_device_id: {
+                    user_id: payload.id,
+                    device_id: dbToken.device_id
+                }
+            },
+            data: {
+                access_token: newAccessToken,
+                refresh_token: newRefreshToken,
+            },
+        });
+        // If the database update failed for any reason, return unauthorized
+        // This ensures that tokens are only considered valid if successfully stored
+        if (!updateDbToken) {
+            return {
+                success: false,
+                message: "Unauthorized",
+            };
+        }
+        // Return success response with the newly generated tokens
+        // Client can now use these tokens to authenticate future requests
         return {
-            success: false,
-            message: "Unauthorized",
+            success: true,
+            message: "Re-generated Access Token And Refresh Token",
+            data: {
+                new_access_token: newAccessToken,
+                new_refresh_token: newRefreshToken,
+            },
         };
     }
-    // Return success response with the newly generated tokens
-    // Client can now use these tokens to authenticate future requests
-    return {
-        success: true,
-        message: "Re-generated Access Token And Refresh Token",
-        data: {
-            new_access_token: newAccessToken,
-            new_refresh_token: newRefreshToken,
-        },
-    };
+    catch (error) {
+        throw (error);
+    }
 };
 //# sourceMappingURL=user.services.js.map

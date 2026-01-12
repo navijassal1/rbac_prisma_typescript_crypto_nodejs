@@ -9,7 +9,7 @@
  * All database interactions are handled via Prisma.
  */
 import type { GrantPermissionParams, GrantRolesParams } from "../types/admin-permissions.types.js";
-import type { serviceResponse } from "../types/common.types.js";
+import type { serviceResponse, TargetParams } from "../types/common.types.js";
 /**
  * @description Fetch all users from the database
  *              Includes basic user info and assigned role names
@@ -32,7 +32,7 @@ export declare const listRolesService: () => Promise<serviceResponse>;
  * @param {number} targetUserId - User ID to fetch permissions for
  * @returns {Promise<serviceResponse>}
  */
-export declare const getUserPermissionsService: (targetUserId: number) => Promise<serviceResponse>;
+export declare const getUserPermissionsService: (targetUserId: TargetParams) => Promise<serviceResponse>;
 /**
  * @description Grant a set of permissions to a specific user
  *              Existing permissions are replaced with the new set

@@ -92,7 +92,7 @@ export const listPermissions: ExpressMiddlewareParams = async (req, res): Promis
  * @route       GET /list-roles
  * @access      Protected / Admin
  */
-export const listRoles: ExpressMiddlewareParams = async (req,res) => {
+export const listRoles: ExpressMiddlewareParams = async (req, res) => {
   try {
     const result: serviceResponse = await listRolesService()
     if (!result.success) {
@@ -112,7 +112,7 @@ export const listRoles: ExpressMiddlewareParams = async (req,res) => {
  */
 export const getUserPermissions: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    const targetUserId:TargetParams = req.targetUserId
+    const targetUserId: TargetParams = req.targetUserId
     const result: serviceResponse = await getUserPermissionsService(targetUserId)
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)

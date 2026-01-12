@@ -47,11 +47,9 @@ export const createCategories: ExpressMiddlewareParams = async (req, res): Promi
         const targetUserId: TargetParams = req.targetUserId
         const categoryName: CategoryNameParams = req.body
         const result: serviceResponse = await createCategoriesService(targetUserId, categoryName)
-
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message)
         }
-
         return response(res, STATUS.CREATED, true, result.message)
     } catch (e) {
         return errorHandler(e as Error, res)

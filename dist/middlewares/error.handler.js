@@ -1,4 +1,6 @@
 import { STATUS } from '../enums/enums.js';
+import fs from "fs";
+import path from "path";
 /**
  * @description Express global error handler middleware
  * Catches all errors thrown in routes and sends a standardized response
@@ -12,6 +14,12 @@ export const errorHandler = (err, res) => {
     // Log the error to console for debugging
     console.error(err);
     // Send a standardized error response
+    const logsDir = path.join(process.cwd(), 'public', 'logs');
+    const logFile = path.join(logsDir, 'error.log');
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir, { recursive: true });
+    }
+    fs.appendFileSync(logFile, `[${new Date().toISOString()}] ${err.message}\n`, 'utf-8');
     return res.status(STATUS.SERVER_ERROR).json({
         success: false,
         message: 'Something went wrong'

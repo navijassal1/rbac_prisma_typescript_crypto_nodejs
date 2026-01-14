@@ -9,11 +9,6 @@ declare global {
   namespace Express {
     interface Request {
       /**
-       * The user who is currently logged in through a session.
-       * Typically populated by session-based authentication (if used).
-       */
-      currentUser?: User;
-      /**
        * The user extracted from a verified JWT token.
        * Populated by `verifyToken` middleware.
        */

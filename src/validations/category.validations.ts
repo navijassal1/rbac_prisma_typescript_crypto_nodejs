@@ -2,7 +2,7 @@
 import { body } from "express-validator";
 import prisma from '../lib/prisma.client.js';
 import { STATUS } from "../enums/enums.js";
-import type { ApiResponseReturn, ExpressMiddlewareParams } from "../types/common.types.js";
+import type { ApiResponseReturn, ExpressMiddlewareParams, NextFunctionReturn } from "../types/common.types.js";
 import { response } from "../helpers/helper.js";
 import { validateResult } from "../utils/validation.result.middleware.js";
 
@@ -34,7 +34,7 @@ export const createCategoryValidation = [
  * Middleware to attach the target category to the request object.
  * Ensures the category exists and belongs to the target user.
  */
-export const attachTargetCategory: ExpressMiddlewareParams = async (req, res, next):Promise<ApiResponseReturn> => {
+export const attachTargetCategory: ExpressMiddlewareParams = async (req, res, next):Promise<ApiResponseReturn|NextFunctionReturn> => {
   // Ensure the target user ID and categorySlug exist
   if (!req.targetUserId || !req.params.categorySlug) {
     return response(res, STATUS.BAD_REQUEST, false, "Target user or category slug not set");

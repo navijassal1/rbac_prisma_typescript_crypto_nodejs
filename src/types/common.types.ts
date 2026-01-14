@@ -9,13 +9,14 @@ import type { Request, Response, NextFunction } from "express";
  * @param next - Express next function to pass control
  */
 // 2. Define the generic return type that allows the object OR void (for next())
-export type ApiResponseReturn = object | void;
+export type ApiResponseReturn = object;
+export type NextFunctionReturn = void;
 // 3. Define the Middleware type with a default of your structure
 export type ExpressMiddlewareParams = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<ApiResponseReturn>;
+) => Promise<ApiResponseReturn | NextFunctionReturn>;
 /**
  * Type definition for an Express error-handling middleware.
  * Error handlers have four parameters: error, request, response, next.

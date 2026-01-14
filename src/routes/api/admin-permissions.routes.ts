@@ -10,7 +10,7 @@ import {
   getUserPermissions,     // Fetch permissions for a specific user
   grantPermissions,       // Assign permissions to a user
   grantRoles              // Assign roles to a user
-} from "../../controllers/admin.permissions.controller.js";
+} from "../../controllers/admin-permissions.controller.js";
 
 // RBAC enums
 import { Resource, Action } from "../../enums/enums.js";

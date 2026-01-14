@@ -10,7 +10,7 @@ import prisma from "../lib/prisma.client.js";
 
 import type { StringValue } from "ms";
 
-import type { ExpressMiddlewareParams } from "../types/common.types.js";
+import type { ExpressMiddlewareParams, ApiResponseReturn, NextFunctionReturn } from "../types/common.types.js";
 
 import { unauthorized } from "../helpers/helper.js";
 
@@ -52,7 +52,7 @@ export const generateRefreshToken = async (user: JwtPayload): Promise<string> =>
  * @param {Response} res - Express response object
  * @param {NextFunction} next - Express next middleware function
  */
-export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promise<any> => {
+export const verifyToken: ExpressMiddlewareParams = async (req, res, next): Promise<ApiResponseReturn | NextFunctionReturn> => {
     try {
         // Extract Authorization header
         const authorization = req.headers.authorization;
@@ -68,7 +68,7 @@ export const verifyToken: ExpressMiddlewareParams = async (req, res, next):Promi
         // console.log(typeof decoded)
         // console.log(decoded, 'token')
         if (!decoded || typeof decoded === 'string') return unauthorized(res); // payload should be object
-        const originalPayload:{id:number} = decryptedPayload(decoded.data)
+        const originalPayload: { id: number } = decryptedPayload(decoded.data)
         // // Check if user exists in database
         const userExists = await prisma.user.findUnique({
             where: { id: originalPayload.id },

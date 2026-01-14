@@ -1,6 +1,6 @@
 import { STATUS } from '../enums/enums.js'
 
-import type { ErrorHandlerParams } from '../types/common.types.js'
+import type { ErrorHandlerParams,ApiResponseReturn } from '../types/common.types.js'
 
 import fs from "fs"
 import path from "path"
@@ -13,7 +13,7 @@ import path from "path"
  * @param {NextFunction} next - Express next middleware function
  * @returns {Response} Sends an HTTP response with status code and message
  */
-export const errorHandler: ErrorHandlerParams = (err, res):object => {
+export const errorHandler: ErrorHandlerParams = (err, res):ApiResponseReturn => {
     // Log the error to console for debugging
     console.error(err)
     // Send a standardized error response

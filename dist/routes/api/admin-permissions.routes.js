@@ -7,15 +7,15 @@ listPermissions, // Fetch all available permissions
 listRoles, // Fetch all available roles
 getUserPermissions, // Fetch permissions for a specific user
 grantPermissions, // Assign permissions to a user
-grantRoles // Assign roles to a user
- } from "../../controllers/admin-permissions.controller.js";
+grantRoles, // Assign roles to a user
+fetchUsersWithRoles } from "../../controllers/admin-permissions.controller.js";
 // RBAC enums
 import { Resource, Action } from "../../enums/enums.js";
 // Authorization middleware (RBAC enforcement)
 import { authorize } from "../../middlewares/authorize.role.js";
 // Validation and helper middlewares
 import { adminPermissionValidation, // Validation rules for permission assignment
-adminRolesValidation, // Validation rules for role assignment
+adminRolesValidation, attachTargetRole, // Validation rules for role assignment
 attachTargetUser // Attaches target user to request object
  } from "../../validations/admin-permissions.validations.js";
 // ---------------------------------------------------
@@ -30,7 +30,7 @@ const adminPermissionRouter = Router();
  * @desc    List all users in the system
  * @access  Requires USER:READ permission
  */
-adminPermissionRouter.get("/list-users", authorize([Resource.SYSTEM], [Action.READ]), listUsers);
+adminPermissionRouter.get("/list-users", authorize([Resource.USER], [Action.READ]), listUsers);
 /**
  * @route   GET /list-permissions
  * @desc    List all available permissions in the system
@@ -42,7 +42,7 @@ adminPermissionRouter.get("/list-permissions", authorize([Resource.SYSTEM], [Act
  * @desc    List all roles available in the system
  * @access  Requires SYSTEM:READ permission
  */
-adminPermissionRouter.get("/list-roles", authorize([Resource.SYSTEM], [Action.READ]), listRoles);
+adminPermissionRouter.get("/list-roles", authorize([Resource.USER], [Action.READ]), listRoles);
 /**
  * @route   GET /users/:user_id/permissions
  * @desc    Get permissions assigned to a specific user
@@ -64,6 +64,7 @@ grantPermissions);
  */
 adminPermissionRouter.put("/roles", authorize([Resource.SYSTEM], [Action.READ]), adminRolesValidation, // Validate role payload
 grantRoles);
+adminPermissionRouter.get("/users/:role", authorize([Resource.USER], [Action.READ]), attachTargetRole, fetchUsersWithRoles);
 // ---------------------------------------------------
 // Export Router
 // ---------------------------------------------------

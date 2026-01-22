@@ -8,14 +8,14 @@
  *
  * All database interactions are handled via Prisma.
  */
-import type { GrantPermissionParams, GrantRolesParams } from "../types/admin-permissions.types.js";
+import type { GrantPermissionParams, GrantRolesParams, paginationParams } from "../types/admin-permissions.types.js";
 import type { serviceResponse, TargetParams } from "../types/common.types.js";
 /**
  * @description Fetch all users from the database
  *              Includes basic user info and assigned role names
  * @returns {Promise<serviceResponse>}
  */
-export declare const listUsersService: () => Promise<serviceResponse>;
+export declare const listUsersService: (reqQuery: paginationParams) => Promise<serviceResponse>;
 /**
  * @description Fetch all permissions available in the system
  * @returns {Promise<serviceResponse>}
@@ -48,4 +48,9 @@ export declare const grantPermissionsService: (reqBody: GrantPermissionParams) =
  * @returns {Promise<serviceResponse>}
  */
 export declare const grantRolesService: (reqBody: GrantRolesParams) => Promise<serviceResponse>;
+/**
+ * @description Fetch all Roles from the database
+ * @returns {Promise<serviceResponse>}
+ */
+export declare const fetchUsersWithRolesService: (param: string, reqQuery: paginationParams) => Promise<serviceResponse>;
 //# sourceMappingURL=admin-permissions.services.d.ts.map

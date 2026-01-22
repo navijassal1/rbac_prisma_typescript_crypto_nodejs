@@ -115,7 +115,7 @@ export const loginService = async (reqBody) => {
         return {
             success: true,
             message: "User login successfully",
-            data: { accessToken, refreshToken }
+            data: { accessToken, refreshToken, roles: cleanResponse.roles }
         };
     }
     catch (error) {
@@ -135,12 +135,27 @@ export const userDetailsService = async (tokenUser) => {
                 first_name: true,
                 last_name: true,
                 username: true,
-                email: true
+                email: true,
+                roles: { select: { role: true } },
+                permissions: { select: { permission: true } },
             }
         });
         if (!userExists)
+            return { success: false, message: 'User Not Found' };
+        const cleanResponse = {
+            first_name: userExists.first_name,
+            last_name: userExists.last_name,
+            username: userExists.username,
+            roles: userExists.roles.map(r => r.role.name),
+            permissions: userExists.permissions.map(p => ({
+                id: p.permission.id,
+                resource: p.permission.resource,
+                action: p.permission.action
+            }))
+        };
+        if (!userExists)
             return { success: false, message: "User Not Found" };
-        return { success: true, message: "User Details", data: userExists };
+        return { success: true, message: "User Details", data: cleanResponse };
     }
     catch (error) {
         throw error;
@@ -293,6 +308,28 @@ export const refreshTokenService = async (reqBody) => {
     }
     catch (error) {
         throw (error);
+    }
+};
+export const logoutService = async (tokenUser, device_id) => {
+    try {
+        // console.log('--------logout service-----------')
+        // console.log(tokenUser, '\n', device_id)
+        // console.log('--------logout service-----------')
+        const deleted = await prisma.user_device.delete({
+            where: {
+                user_id_device_id: {
+                    user_id: tokenUser.id,
+                    device_id: device_id
+                }
+            }
+        });
+        if (!deleted) {
+            return { success: false, message: 'Logout Failed' };
+        }
+        return { success: true, message: 'Logout Successfull' };
+    }
+    catch (err) {
+        throw err;
     }
 };
 //# sourceMappingURL=user.services.js.map

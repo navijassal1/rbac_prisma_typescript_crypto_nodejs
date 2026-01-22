@@ -1,7 +1,7 @@
 // Import Router from Express to define protected user routes
 import { Router } from "express";
 // Import controller functions for user management
-import { userDetails, updateUser, deleteUser, changePassword } from "../../controllers/user.controller.js";
+import { userDetails, updateUser, deleteUser, changePassword, logoutUser } from "../../controllers/user.controller.js";
 // Import user-specific validations and utility middleware
 import { ChangePasswordValidation, // Validation rules for password change
 attachTargetUser // Middleware to attach target user to request
@@ -21,6 +21,7 @@ userProtectedRouter.put("/:username", authorize([Resource.USER], [Action.UPDATE]
 // Permissions: USER resource, READ action
 // Endpoint: GET /api/users/user-details
 userProtectedRouter.get("/user-details", authorize([Resource.USER], [Action.READ]), userDetails);
+userProtectedRouter.get("/user-role", userDetails);
 // Route: Change password for a user
 // Permissions: USER resource, UPDATE action
 // Validates new password and attaches target user
@@ -31,6 +32,7 @@ userProtectedRouter.patch("/:username", authorize([Resource.USER], [Action.UPDAT
 // Middleware attachTargetUser ensures the correct user is targeted
 // Endpoint: DELETE /api/users/:username
 userProtectedRouter.delete("/:username", authorize([Resource.USER], [Action.DELETE]), attachTargetUser, deleteUser);
+userProtectedRouter.post("/logout", logoutUser);
 // Export the protected user router
 export default userProtectedRouter;
 //# sourceMappingURL=user.routes.js.map

@@ -12,7 +12,7 @@ import type {
     JwtPayload,
     RefreshTokenParams
 } from "../types/user.types.js"
-import type { serviceResponse, TargetParams } from '../types/common.types.js'
+import type { serviceResponse, TargetParams, TokenData, } from '../types/common.types.js'
 
 /**
  * @description Create a new user with hashed password, assigned role, and permissions
@@ -118,7 +118,7 @@ export const loginService = async (reqBody: LoginDeviceParams): Promise<serviceR
         return {
             success: true,
             message: "User login successfully",
-            data: { accessToken, refreshToken }
+            data: { accessToken, refreshToken ,roles:cleanResponse.roles }
         }
     } catch (error) {
         throw error
@@ -137,11 +137,26 @@ export const userDetailsService = async (tokenUser: JwtPayload): Promise<service
                 first_name: true,
                 last_name: true,
                 username: true,
-                email: true
+                email: true,
+                roles: { select: { role: true } },
+                permissions: { select: { permission: true } },
+
             }
         })
+        if (!userExists) return { success: false, message: 'User Not Found' }
+        const cleanResponse = {
+            first_name: userExists.first_name,
+            last_name: userExists.last_name,
+            username: userExists.username,
+            roles: userExists.roles.map(r => r.role.name),
+            permissions: userExists.permissions.map(p => ({
+                id: p.permission.id,
+                resource: p.permission.resource,
+                action: p.permission.action
+            }))
+        }
         if (!userExists) return { success: false, message: "User Not Found" }
-        return { success: true, message: "User Details", data: userExists }
+        return { success: true, message: "User Details", data: cleanResponse }
     } catch (error) {
         throw error
     }
@@ -294,6 +309,32 @@ export const refreshTokenService = async (
         }
     } catch (error) {
         throw (error)
+    }
+}
+export const logoutService = async (
+    tokenUser: JwtPayload,
+    device_id: string
+): Promise<serviceResponse> => {
+    try {
+        // console.log('--------logout service-----------')
+        // console.log(tokenUser, '\n', device_id)
+        // console.log('--------logout service-----------')
+        const deleted = await prisma.user_device.delete({
+            where: {
+                user_id_device_id: {
+
+                    user_id: tokenUser.id,
+                    device_id: device_id
+                }
+
+            }
+        });
+        if (!deleted) {
+            return { success: false, message: 'Logout Failed' }
+        }
+        return { success: true, message: 'Logout Successfull' }
+    } catch (err) {
+        throw err
     }
 }
 

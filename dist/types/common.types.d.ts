@@ -43,5 +43,9 @@ export interface serviceResponse<T = object> {
     message: string;
     data?: T;
 }
+export interface TokenData {
+    accessToken: string;
+    refreshToken: string;
+}
 export type TargetParams = number;
 //# sourceMappingURL=common.types.d.ts.map

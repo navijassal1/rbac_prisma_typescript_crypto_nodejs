@@ -14,8 +14,12 @@ import prisma from "../lib/prisma.client.js";
  *              Includes basic user info and assigned role names
  * @returns {Promise<serviceResponse>}
  */
-export const listUsersService = async () => {
+export const listUsersService = async (reqQuery) => {
     try {
+        let { page, sort_by, sort_order, limit } = reqQuery;
+        // console.log(page,sort_by,sort_order)
+        const pageSize = 10;
+        const offset = (page - 1) * pageSize;
         const listUsers = await prisma.user.findMany({
             select: {
                 id: true,
@@ -24,14 +28,43 @@ export const listUsersService = async () => {
                 username: true,
                 email: true,
                 // Fetch roles assigned to each user
-                roles: { select: { role: { select: { name: true } } } }
-            }
+                roles: { select: { role: { select: { name: true, id: true } } } }
+            },
+            skip: offset,
+            take: limit,
+            orderBy: { [sort_by]: sort_order }
         });
-        // Explicitly handle case where no users exist
+        // Count total items for metadata
+        const total = await prisma.user.count();
+        // // Explicitly handle case where no users exist
         if (listUsers.length === 0) {
             return { success: false, message: "Users do not exist currently" };
         }
-        return { success: true, message: "List of users", data: listUsers };
+        const cleanResponse = listUsers.map(user => ({
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            username: user.username,
+            email: user.email,
+            roleIds: user.roles.map(r => r.role.id),
+            roles: user.roles.map(r => r.role.name),
+        }));
+        return {
+            success: true,
+            message: "List of users",
+            data: {
+                users: cleanResponse,
+                data_details: {
+                    current: Number(page),
+                    total_data: total,
+                    from: offset + 1,
+                    to: offset + pageSize,
+                    total_pages: Math.ceil(total / pageSize),
+                    sort_by: sort_by,
+                    sort_order: sort_order.toUpperCase(),
+                },
+            }
+        };
     }
     catch (error) {
         // Re-throw the error to be handled by a global error handler
@@ -90,7 +123,7 @@ export const getUserPermissionsService = async (targetUserId) => {
             where: { user_id: targetUserId },
             select: {
                 // Include minimal user information
-                user: { select: { id: true, username: true } },
+                // user: { select: { id: true, username: true } },
                 // Include permission details
                 permission: true
             }
@@ -114,7 +147,7 @@ export const getUserPermissionsService = async (targetUserId) => {
 export const grantPermissionsService = async (reqBody) => {
     try {
         const { user_id, permission_ids } = reqBody;
-        // Validate permission IDs input
+        console.log(user_id, permission_ids, 'req body'); // Validate permission IDs input
         if (!Array.isArray(permission_ids) || permission_ids.length === 0) {
             return { success: false, message: "Permission IDs must be a non-empty array" };
         }
@@ -227,6 +260,122 @@ export const grantRolesService = async (reqBody) => {
         return { success: true, message: "Roles granted successfully" };
     }
     catch (error) {
+        throw error;
+    }
+};
+/**
+ * @description Fetch all Roles from the database
+ * @returns {Promise<serviceResponse>}
+ */
+export const fetchUsersWithRolesService = async (param, reqQuery) => {
+    try {
+        let { page, sort_by, sort_order, limit } = reqQuery;
+        const pageSize = 10;
+        const offset = (page - 1) * limit;
+        let listUsers = [];
+        let total;
+        console.log({ page, sort_by, sort_order, param, limit });
+        if (param == 'ALL') {
+            listUsers = await prisma.user.findMany({
+                select: {
+                    id: true,
+                    first_name: true,
+                    last_name: true,
+                    username: true,
+                    email: true,
+                    // Fetch roles assigned to each user
+                    roles: { select: { role: { select: { name: true, id: true } } } }
+                },
+                skip: offset,
+                take: limit,
+                orderBy: { [sort_by]: sort_order }
+            });
+            total = await prisma.user.count();
+        }
+        else {
+            listUsers = await prisma.user.findMany({
+                where: {
+                    roles: {
+                        some: {
+                            role: {
+                                is: {
+                                    name: param
+                                }
+                            }
+                        }
+                    }
+                },
+                include: { roles: { select: { role: { select: { name: true, id: true } } } } },
+                skip: offset,
+                take: limit,
+                orderBy: { [sort_by]: sort_order }
+            });
+            total = await prisma.user.count({
+                where: {
+                    roles: {
+                        some: {
+                            role: {
+                                is: {
+                                    name: param
+                                }
+                            }
+                        }
+                    }
+                },
+            });
+        }
+        // Handle case where no roles exist
+        if (listUsers.length === 0) {
+            return {
+                success: true, message: "Users do not exist currently", data: {
+                    users: []
+                }
+            };
+        }
+        const cleanResponse = listUsers.map(user => ({
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            username: user.username,
+            email: user.email,
+            // roleIds: user.roles.map(r => r.role.id),
+            roles: user.roles.map(r => r.role.name),
+        }));
+        const totalPages = Math.ceil(total / limit);
+        const from = offset + 1;
+        const to = Math.min(offset + limit, total);
+        return {
+            success: true,
+            message: `List of ${param}`,
+            data: {
+                users: cleanResponse,
+                data_details: {
+                    current: page,
+                    total_data: total,
+                    from,
+                    to,
+                    total_pages: totalPages,
+                    limit,
+                    sort_by,
+                    sort_order: sort_order.toUpperCase(),
+                },
+            },
+            // data: {
+            //     users: cleanResponse,
+            //     data_details: {
+            //         current: Number(page),
+            //         total_data: total,
+            //         from: offset + 1,
+            //         to: offset + pageSize,
+            //         total_pages: Math.ceil(total / pageSize),
+            //         sort_by: sort_by,
+            //         sort_order: sort_order.toUpperCase(),
+            //     },
+            // }
+        };
+    }
+    catch (error) {
+        // Re-throw the error to be handled by a global error handler
         throw error;
     }
 };

@@ -49,4 +49,5 @@ export declare const changePassword: ExpressMiddlewareParams;
  * @param next - Express next function for passing errors to error-handling middleware
  */
 export declare const refreshAccessToken: ExpressMiddlewareParams;
+export declare const logoutUser: ExpressMiddlewareParams;
 //# sourceMappingURL=user.controller.d.ts.map

@@ -5,7 +5,7 @@ import prisma from "../../src/lib/prisma.client"
 import { Resource, Action } from "../../src/enums/enums"
 import { userSeed } from "./user-seed"
 
-export async function rolePermissionSeed(superAdmin: {id:number}, admin: {id:number}, user: {id:number}, vendor: {id:number}) {
+export async function rolePermissionSeed(superAdmin: { id: number }, admin: { id: number }, user: { id: number }, vendor: { id: number }) {
     // Fetch all permissions
     const allPermissions = await prisma.permission.findMany()
     console.log('-----------all Permissions--------------')
@@ -22,7 +22,11 @@ export async function rolePermissionSeed(superAdmin: {id:number}, admin: {id:num
 
     // ADMIN gets all permissions except SYSTEM resource
     const adminPermissions = allPermissions.filter(
-        p => p.resource !== Resource.SYSTEM
+        p => (p.resource === Resource.USER &&
+            p.action === Action.READ) ||
+            (p.resource === Resource.CATEGORY &&
+                p.action === Action.READ
+            )
     )
     console.log('---------adminPermissions----------')
     console.log(adminPermissions)
@@ -30,8 +34,7 @@ export async function rolePermissionSeed(superAdmin: {id:number}, admin: {id:num
     // VENDOR can manage CATEGORY except DELETE
     const vendorPermissions = allPermissions.filter(
         p =>
-            p.resource === Resource.CATEGORY &&
-            p.action !== Action.DELETE
+            p.resource === Resource.CATEGORY
     )
     console.log('---------vendorPermissions----------')
     console.log(vendorPermissions)
@@ -39,8 +42,11 @@ export async function rolePermissionSeed(superAdmin: {id:number}, admin: {id:num
     // USER can only READ USER resource
     const userPermissions = allPermissions.filter(
         p =>
-            p.resource === Resource.USER &&
-            p.action === Action.READ
+            (p.resource === Resource.USER &&
+                p.action === Action.READ)
+            // ||
+            // (p.resource === Resource.CATEGORY &&
+            //     p.action === Action.READ)
     )
     console.log('---------userPermissions----------')
     console.log(userPermissions)
@@ -87,7 +93,7 @@ export async function rolePermissionSeed(superAdmin: {id:number}, admin: {id:num
     /* =====================================================
             SUPER ADMIN USER CREATION
            ===================================================== */
-    await userSeed(superAdmin.id,superAdminPermissions)
+    await userSeed(superAdmin.id, superAdminPermissions)
         .then(() => {
             console.log('Super-Admin seeding completed')
         })

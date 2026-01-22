@@ -40,11 +40,13 @@ export const authorize = (allowedResources: Resource[], allowedActions: Action[]
       },
     });
     console.log(userPermissions, "userPermissions");
-    console.log("----------END-----------");
     // If the user has no matching permissions, return 403 Forbidden
     if (userPermissions.length === 0) {
+      console.log('inside lengthhhhhhhhhhhh')
+      console.log(userPermissions.length,'in side length ')
       return forbidden(res);
     }
     // User has required permission, proceed to next middleware/controller
+    console.log("----------END-----------");
     next();
   };

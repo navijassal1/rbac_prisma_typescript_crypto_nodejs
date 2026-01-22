@@ -23,7 +23,7 @@ import {
 import { authorize } from "../../middlewares/authorize.role.js";
 
 // Enums for RBAC: actions, resources, roles
-import { Action, Resource, Roles } from "../../enums/enums.js";
+import { Action, Resource } from "../../enums/enums.js";
 
 // Create router instance for protected category routes
 const categoryProtectedRouter = Router();

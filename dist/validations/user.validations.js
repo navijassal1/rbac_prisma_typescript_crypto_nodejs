@@ -23,58 +23,59 @@ export const signupValidation = [
     }),
     // First name validation
     body('first_name')
-        .notEmpty().withMessage('First name is required.')
-        .isLength({ min: 3, max: 25 }).withMessage("First name must be 3-25 characters.")
+        .notEmpty().withMessage('First name is required.').bail()
+        .isLength({ min: 3, max: 25 }).withMessage("First name must be 3-25 characters.").bail()
         .matches(/^[a-zA-Z][a-zA-Z\s.'-]*$/)
         .withMessage("First name must start with a letter and contain only letters, spaces, periods, apostrophes, or hyphens."),
     // Last name validation
     body('last_name')
-        .notEmpty().withMessage('Last name is required.')
-        .isLength({ min: 3, max: 25 }).withMessage("Last name must be 3-25 characters.")
+        .notEmpty().withMessage('Last name is required.').bail()
+        .isLength({ min: 3, max: 25 }).withMessage("Last name must be 3-25 characters.").bail()
         .matches(/^[a-zA-Z][a-zA-Z\s.'-]*$/)
         .withMessage("Last name must start with a letter and contain only letters, spaces, periods, apostrophes, or hyphens."),
     // Username validation
     body('username')
-        .notEmpty().withMessage('Username is required.')
-        .isLength({ min: 3, max: 20 }).withMessage("Username must be 3-20 characters.")
+        .notEmpty().withMessage('Username is required.').bail()
+        .isLength({ min: 3, max: 20 }).withMessage("Username must be 3-20 characters.").bail()
         .matches(/^[a-z0-9]+([._-]?[a-z0-9]+)*$/)
-        .withMessage("Username can only contain lowercase letters, numbers, and (._-).")
+        .withMessage("Username can only contain lowercase letters, numbers, and (._-).").bail()
         .custom((val) => !RESERVED.includes(val)).withMessage("This username is reserved.")
         .custom(async (val) => {
         const exists = await prisma.user.findUnique({ where: { username: val } });
         if (exists)
             throw ({ code: STATUS.UNPROCESSIBLE, message: 'This username is already registered.' });
         return true;
-    }),
+    }).bail(),
     // Email validation
     body('email')
-        .notEmpty().withMessage('Email is required.')
-        .isLength({ min: 6, max: 320 }).withMessage("Email must be 6-320 characters.")
-        .isEmail().withMessage("Please enter a valid email address.")
+        .notEmpty().withMessage('Email is required.').bail()
+        .isLength({ min: 6, max: 320 }).withMessage("Email must be 6-320 characters.").bail()
+        .isEmail().withMessage("Please enter a valid email address.").bail()
         .custom(async (val) => {
         const exists = await prisma.user.findUnique({ where: { email: val } });
         if (exists)
             throw ({ code: STATUS.UNPROCESSIBLE, message: 'This email is already registered.' });
         return true;
-    }),
+    }).bail(),
     // Password validation
     body('password')
-        .trim().notEmpty().withMessage('Password is required.')
-        .isLength({ min: 8, max: 32 }).withMessage("Password must be 8-32 characters.")
+        .trim().notEmpty().withMessage('Password is required.').bail()
+        .isLength({ min: 8, max: 32 }).withMessage("Password must be 8-32 characters.").bail()
         .isStrongPassword({
         minLowercase: 1,
         minUppercase: 1,
         minSymbols: 1,
         minNumbers: 1
-    }).withMessage('Password must include uppercase, lowercase, number, and symbol.'),
+    }).withMessage('Password must include uppercase, lowercase, number, and symbol.').bail(),
     // Confirm password validation
     body('confirm_password')
-        .notEmpty().withMessage('Confirm password is required.')
+        .notEmpty().withMessage('Confirm password is required.').bail()
         .custom((value, { req }) => {
+        console.log(value, req.body.password);
         if (value !== req.body.password)
             throw ({ code: STATUS.BAD_REQUEST, message: 'Passwords do not match.' });
         return true;
-    }),
+    }).bail(),
     validateResult
 ];
 /**
@@ -82,11 +83,11 @@ export const signupValidation = [
  */
 export const loginValidation = [
     body('email')
-        .notEmpty().withMessage('Email is required.')
-        .isLength({ min: 6, max: 320 }).withMessage("Email must be 6-320 characters.")
-        .isEmail().withMessage("Please enter a valid email address."),
+        .notEmpty().withMessage('Email is required.').bail()
+        .isLength({ min: 6, max: 320 }).withMessage("Email must be 6-320 characters.").bail()
+        .isEmail().withMessage("Please enter a valid email address.").bail(),
     body('password')
-        .notEmpty().withMessage('Password is required.')
+        .notEmpty().withMessage('Password is required.').bail()
         .custom(async (val, { req }) => {
         const exists = await prisma.user.findUnique({
             where: { email: req.body.email },
@@ -98,9 +99,9 @@ export const loginValidation = [
         if (!correctPassword)
             throw ({ code: STATUS.UNPROCESSIBLE, message: 'Invalid Credentials.' });
         return true;
-    }),
-    body('device_id').notEmpty().withMessage('Device Id is Required'),
-    body('device_type').notEmpty().withMessage('Device Type is Required'),
+    }).bail(),
+    body('device_id').notEmpty().withMessage('Device Id is Required').bail(),
+    body('device_type').notEmpty().withMessage('Device Type is Required').bail(),
     validateResult
 ];
 /**
@@ -157,7 +158,7 @@ export const refreshTokenValidation = [
  * Useful for controllers that need to perform operations on a specific user.
  */
 export const attachTargetUser = async (req, res, next) => {
-    const username = req.params.username;
+    const username = String(req.params.username);
     const userExist = await prisma.user.findUnique({
         where: { username },
         select: { id: true }

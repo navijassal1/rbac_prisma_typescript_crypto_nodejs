@@ -40,5 +40,7 @@ authRouter.get(
   refreshTokenValidation,
   refreshAccessToken
 );
+
+
 // Export router to be used in the main app
 export default authRouter;

@@ -62,6 +62,10 @@ export interface serviceResponse<T = object> {
   message: string;
   data?: T;
 }
-export type TargetParams=number;           // User ID (primary key)
+export interface TokenData {
+  accessToken: string;
+  refreshToken: string;
+}
+export type TargetParams = number;           // User ID (primary key)
 
 

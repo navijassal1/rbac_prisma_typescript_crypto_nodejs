@@ -6,7 +6,8 @@ import {
   userDetails,
   updateUser,
   deleteUser,
-  changePassword
+  changePassword,
+  logoutUser
 } from "../../controllers/user.controller.js";
 
 // Import user-specific validations and utility middleware
@@ -41,6 +42,11 @@ userProtectedRouter.get(
   authorize([Resource.USER], [Action.READ]),
   userDetails
 );
+
+userProtectedRouter.get(
+  "/user-role",
+  userDetails
+);
 // Route: Change password for a user
 // Permissions: USER resource, UPDATE action
 // Validates new password and attaches target user
@@ -61,6 +67,10 @@ userProtectedRouter.delete(
   authorize([Resource.USER], [Action.DELETE]),
   attachTargetUser,
   deleteUser
+);
+userProtectedRouter.post(
+  "/logout",
+  logoutUser
 );
 // Export the protected user router
 export default userProtectedRouter;

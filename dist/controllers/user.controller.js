@@ -1,4 +1,4 @@
-import { signUpService, loginService, userDetailsService, updateUserService, deleteUserService, changePasswordService, refreshTokenService } from "../services/user.services.js";
+import { signUpService, loginService, userDetailsService, updateUserService, deleteUserService, changePasswordService, refreshTokenService, logoutService } from "../services/user.services.js";
 import { response } from '../helpers/helper.js';
 import { STATUS } from '../enums/enums.js';
 import { errorHandler } from '../middlewares/error.handler.js';
@@ -10,7 +10,9 @@ import { errorHandler } from '../middlewares/error.handler.js';
  */
 export const signUp = async (req, res) => {
     try {
+        // console.log('in signup')
         const reqBody = req.body;
+        console.log(reqBody, 'from frontend');
         const result = await signUpService(reqBody);
         if (!result.success)
             return response(res, STATUS.BAD_REQUEST, false, result.message);
@@ -30,6 +32,7 @@ export const signUp = async (req, res) => {
 export const login = async (req, res) => {
     try {
         const reqBody = req.body;
+        // const result: serviceResponse<TokenData> = await loginService(reqBody)
         const result = await loginService(reqBody);
         if (!result.success)
             return response(res, STATUS.NOT_FOUND, false, result.message);
@@ -139,6 +142,20 @@ export const refreshAccessToken = async (req, res) => {
     }
     catch (e) {
         // Pass any unexpected errors to Express error-handling middleware
+        return errorHandler(e, res);
+    }
+};
+export const logoutUser = async (req, res) => {
+    try {
+        console.log('22222');
+        const tokenUser = req.tokenUser;
+        const device_id = req.body.device_id;
+        const result = await logoutService(tokenUser, device_id);
+        if (!result.success)
+            return response(res, STATUS.UNPROCESSIBLE, result.success, result.message);
+        return response(res, STATUS.SUCCESS, result.success, result.message);
+    }
+    catch (e) {
         return errorHandler(e, res);
     }
 };

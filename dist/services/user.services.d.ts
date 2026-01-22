@@ -47,4 +47,5 @@ export declare const changePasswordService: (targetUserId: TargetParams, reqBody
  * @returns serviceResponse - Success or failure message with new tokens if successful
  */
 export declare const refreshTokenService: (reqBody: RefreshTokenParams) => Promise<serviceResponse>;
+export declare const logoutService: (tokenUser: JwtPayload, device_id: string) => Promise<serviceResponse>;
 //# sourceMappingURL=user.services.d.ts.map

@@ -9,7 +9,8 @@ import {
   listRoles,              // Fetch all available roles
   getUserPermissions,     // Fetch permissions for a specific user
   grantPermissions,       // Assign permissions to a user
-  grantRoles              // Assign roles to a user
+  grantRoles,              // Assign roles to a user
+  fetchUsersWithRoles
 } from "../../controllers/admin-permissions.controller.js";
 
 // RBAC enums
@@ -21,7 +22,7 @@ import { authorize } from "../../middlewares/authorize.role.js";
 // Validation and helper middlewares
 import {
   adminPermissionValidation, // Validation rules for permission assignment
-  adminRolesValidation,      // Validation rules for role assignment
+  adminRolesValidation,      attachTargetRole,      // Validation rules for role assignment
   attachTargetUser           // Attaches target user to request object
 } from "../../validations/admin-permissions.validations.js";
 
@@ -39,7 +40,7 @@ const adminPermissionRouter = Router();
  */
 adminPermissionRouter.get(
   "/list-users",
-  authorize([Resource.SYSTEM], [Action.READ]),
+  authorize([Resource.USER], [Action.READ]),
   listUsers
 );
 /**
@@ -59,7 +60,7 @@ adminPermissionRouter.get(
  */
 adminPermissionRouter.get(
   "/list-roles",
-  authorize([Resource.SYSTEM], [Action.READ]),
+  authorize([Resource.USER], [Action.READ]),
   listRoles
 );
 /**
@@ -94,6 +95,12 @@ adminPermissionRouter.put(
   authorize([Resource.SYSTEM], [Action.READ]),
   adminRolesValidation,   // Validate role payload
   grantRoles
+);
+adminPermissionRouter.get(
+  "/users/:role",
+  authorize([Resource.USER], [Action.READ]),
+  attachTargetRole,
+  fetchUsersWithRoles
 );
 
 // ---------------------------------------------------

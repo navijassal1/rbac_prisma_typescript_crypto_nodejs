@@ -6,10 +6,17 @@ import { SERVER_ENV } from "./constants/backend.js";
 import apiRoutes from "./routes/api/index.routes.js";
 // Import public authentication routes (e.g., login, register)
 import authRouter from "./routes/auth/auth.routes.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 // Create an Express application instance
 const app = express();
-// Middleware to parse incoming JSON requests
 app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: 'http://localhost:3000', // frontend URL
+    credentials: true // allow sending cookies
+}));
+// Middleware to parse incoming JSON requests
 // Mount public authentication routes at /auth
 // Example: /auth/login, /auth/register
 app.use("/auth", authRouter);

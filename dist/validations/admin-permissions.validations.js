@@ -29,6 +29,7 @@ export const adminPermissionValidation = [
         .bail() // Stop validation chain if previous validation fails
         .custom(async (value) => {
         // Check if the user exists
+        console.log(value, 'user id value ');
         const user = await prisma.user.findUnique({
             where: { id: Number(value) }
         });
@@ -52,10 +53,12 @@ export const adminPermissionValidation = [
         .withMessage("Permission IDs are required.")
         .bail()
         .custom(async (value) => {
+        console.log(value, 'value value value vlaue');
         let permissionIds;
         // Handle array input (e.g., JSON request body)
         if (Array.isArray(value)) {
             permissionIds = value.map(Number);
+            console.log(permissionIds, 'permissionIds permissionIds permissionIds permissionIds');
         }
         // Handle stringified array (e.g., form-data)
         else if (typeof value === 'string') {
@@ -183,5 +186,22 @@ export const attachTargetUser = async (req, res, next) => {
     // Attach user ID to request for downstream middleware/controllers
     req.targetUserId = userExists.id;
     next();
+};
+export const attachTargetRole = async (req, res, next) => {
+    const param = String(req.params.role);
+    console.log(param, 'dsgsdgdsgs');
+    if (param == 'ALL') {
+        next();
+    }
+    else {
+        const roleWithUsers = await prisma.role.findUnique({
+            where: { name: param },
+        });
+        // Handle case where no roles exist
+        if (!roleWithUsers) {
+            return response(res, STATUS.NOT_FOUND, false, 'Role Not Found');
+        }
+        next();
+    }
 };
 //# sourceMappingURL=admin-permissions.validations.js.map

@@ -13,7 +13,7 @@
 // --------------------------------------------------
 // Service Imports
 // --------------------------------------------------
-import { listPermissionsService, grantPermissionsService, getUserPermissionsService, listUsersService, listRolesService, grantRolesService } from "../services/admin-permissions.services.js";
+import { listPermissionsService, grantPermissionsService, getUserPermissionsService, listUsersService, listRolesService, fetchUsersWithRolesService, grantRolesService } from "../services/admin-permissions.services.js";
 // --------------------------------------------------
 // Helpers & Enums
 // --------------------------------------------------
@@ -30,7 +30,14 @@ import { errorHandler } from "../middlewares/error.handler.js";
  */
 export const listUsers = async (req, res) => {
     try {
-        const result = await listUsersService();
+        const param = String(req.params.role);
+        const reqQuery = {
+            page: req.query.page ? parseInt(req.query.page, 10) : 1,
+            sort_by: req.query.sort_by || 'id',
+            sort_order: (req.query.sort_order?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
+            limit: req.query.limit ? parseInt(req.query.limit, 10) : 10,
+        };
+        const result = await listUsersService(reqQuery);
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message);
         }
@@ -105,6 +112,7 @@ export const getUserPermissions = async (req, res) => {
 export const grantPermissions = async (req, res) => {
     try {
         const reqBody = req.body;
+        console.log(reqBody, 'req body');
         const result = await grantPermissionsService(reqBody);
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message);
@@ -128,6 +136,30 @@ export const grantRoles = async (req, res) => {
     try {
         const reqBody = req.body;
         const result = await grantRolesService(reqBody);
+        if (!result.success) {
+            return response(res, STATUS.BAD_REQUEST, false, result.message);
+        }
+        return response(res, STATUS.SUCCESS, true, result.message, result.data);
+    }
+    catch (e) {
+        return errorHandler(e, res);
+    }
+};
+/**
+ * @description Fetch all roles defined in the system
+ * @route       GET /list-roles
+ * @access      Protected / Admin
+ */
+export const fetchUsersWithRoles = async (req, res) => {
+    try {
+        const param = String(req.params.role);
+        const reqQuery = {
+            page: req.query.page ? parseInt(req.query.page, 10) : 1,
+            sort_by: req.query.sort_by || 'id',
+            sort_order: (req.query.sort_order?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
+            limit: req.query.limit ? parseInt(req.query.limit, 10) : 10,
+        };
+        const result = await fetchUsersWithRolesService(param, reqQuery);
         if (!result.success) {
             return response(res, STATUS.BAD_REQUEST, false, result.message);
         }

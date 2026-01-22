@@ -41,7 +41,12 @@ export const generateRefreshToken = async (user) => {
 export const verifyToken = async (req, res, next) => {
     try {
         // Extract Authorization header
+        // console.log('-----verify token-------')
+        // console.log('-----cookies-------',req.cookies)
+        // const accessToken=req.cookies.access_token
+        // console.log(accessToken,'cookie token access token')
         const authorization = req.headers.authorization;
+        // console.log('-----------',authorization,'-----------')
         // No token or wrong format => 401 Unauthorized
         if (!authorization || !authorization.startsWith('Bearer')) {
             return unauthorized(res);

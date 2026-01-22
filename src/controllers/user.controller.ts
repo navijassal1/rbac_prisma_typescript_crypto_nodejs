@@ -1,4 +1,4 @@
-import type { ExpressMiddlewareParams, serviceResponse, TargetParams, ApiResponseReturn } from '../types/common.types.js'
+import type { ExpressMiddlewareParams, serviceResponse, TargetParams, ApiResponseReturn, TokenData } from '../types/common.types.js'
 import type {
     SignupReqParams,
     LoginDeviceParams,
@@ -14,7 +14,8 @@ import {
     updateUserService,
     deleteUserService,
     changePasswordService,
-    refreshTokenService
+    refreshTokenService,
+    logoutService
 } from "../services/user.services.js"
 import { response } from '../helpers/helper.js'
 import { STATUS } from '../enums/enums.js'
@@ -28,7 +29,9 @@ import { errorHandler } from '../middlewares/error.handler.js'
  */
 export const signUp: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
+        // console.log('in signup')
         const reqBody: SignupReqParams = req.body
+        console.log(reqBody, 'from frontend')
         const result: serviceResponse = await signUpService(reqBody)
         if (!result.success) return response(res, STATUS.BAD_REQUEST, false, result.message)
         return response(res, STATUS.CREATED, true, result.message, result.data)
@@ -46,9 +49,11 @@ export const signUp: ExpressMiddlewareParams = async (req, res): Promise<ApiResp
 export const login: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
     try {
         const reqBody: LoginDeviceParams = req.body
+        // const result: serviceResponse<TokenData> = await loginService(reqBody)
         const result: serviceResponse = await loginService(reqBody)
         if (!result.success) return response(res, STATUS.NOT_FOUND, false, result.message)
-        return response(res, STATUS.SUCCESS, true, result.message, result.data)
+        
+        return response(res, STATUS.SUCCESS, true, result.message,result.data)
     } catch (e) {
         return errorHandler(e as Error, res);
     }
@@ -154,6 +159,19 @@ export const refreshAccessToken: ExpressMiddlewareParams = async (req, res): Pro
         return errorHandler(e as Error, res)
     }
 }
+
+export const logoutUser:ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
+    try {
+        console.log('22222')
+        const tokenUser: JwtPayload = req.tokenUser
+        const device_id:string=req.body.device_id
+        const result: serviceResponse = await logoutService(tokenUser,device_id)
+        if (!result.success) return response(res, STATUS.UNPROCESSIBLE, result.success, result.message)
+        return response(res, STATUS.SUCCESS, result.success, result.message)
+    } catch (e) {
+        return errorHandler(e as Error, res)
+    }
+};
 
 
 

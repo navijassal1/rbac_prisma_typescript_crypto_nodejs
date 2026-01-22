@@ -24,7 +24,8 @@ import type {
 
 import type {
   GrantPermissionParams,
-  GrantRolesParams
+  GrantRolesParams,
+  paginationParams
 } from "../types/admin-permissions.types.js"
 
 // --------------------------------------------------
@@ -37,6 +38,7 @@ import {
   getUserPermissionsService,
   listUsersService,
   listRolesService,
+  fetchUsersWithRolesService,
   grantRolesService
 } from "../services/admin-permissions.services.js"
 
@@ -59,7 +61,14 @@ import { errorHandler } from "../middlewares/error.handler.js"
  */
 export const listUsers: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
-    const result: serviceResponse = await listUsersService()
+    const param: string = String(req.params.role)
+    const reqQuery: paginationParams = {
+      page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
+      sort_by: (req.query.sort_by as paginationParams['sort_by']) || 'id',
+      sort_order: ((req.query.sort_order as string)?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 10,
+    }
+    const result: serviceResponse = await listUsersService(reqQuery)
     if (!result.success) {
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
@@ -135,6 +144,7 @@ export const getUserPermissions: ExpressMiddlewareParams = async (req, res): Pro
 export const grantPermissions: ExpressMiddlewareParams = async (req, res): Promise<ApiResponseReturn> => {
   try {
     const reqBody: GrantPermissionParams = req.body
+    console.log(reqBody, 'req body')
     const result: serviceResponse = await grantPermissionsService(reqBody)
 
     if (!result.success) {
@@ -165,6 +175,31 @@ export const grantRoles: ExpressMiddlewareParams = async (req, res): Promise<Api
       return response(res, STATUS.BAD_REQUEST, false, result.message)
     }
 
+    return response(res, STATUS.SUCCESS, true, result.message, result.data)
+  } catch (e) {
+    return errorHandler(e as Error, res)
+  }
+}
+
+
+/**
+ * @description Fetch all roles defined in the system
+ * @route       GET /list-roles
+ * @access      Protected / Admin
+ */
+export const fetchUsersWithRoles: ExpressMiddlewareParams = async (req, res) => {
+  try {
+    const param: string = String(req.params.role)
+    const reqQuery: paginationParams = {
+      page: req.query.page ? parseInt(req.query.page as string, 10) : 1,
+      sort_by: (req.query.sort_by as paginationParams['sort_by']) || 'id',
+      sort_order: ((req.query.sort_order as string)?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
+      limit: req.query.limit ? parseInt(req.query.limit as string, 10) : 10,
+    }
+    const result: serviceResponse = await fetchUsersWithRolesService(param, reqQuery)
+    if (!result.success) {
+      return response(res, STATUS.BAD_REQUEST, false, result.message)
+    }
     return response(res, STATUS.SUCCESS, true, result.message, result.data)
   } catch (e) {
     return errorHandler(e as Error, res)

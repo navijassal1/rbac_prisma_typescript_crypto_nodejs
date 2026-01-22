@@ -56,4 +56,10 @@ export declare const grantPermissions: ExpressMiddlewareParams;
  *              - role_ids[]
  */
 export declare const grantRoles: ExpressMiddlewareParams;
+/**
+ * @description Fetch all roles defined in the system
+ * @route       GET /list-roles
+ * @access      Protected / Admin
+ */
+export declare const fetchUsersWithRoles: ExpressMiddlewareParams;
 //# sourceMappingURL=admin-permissions.controller.d.ts.map

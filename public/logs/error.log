@@ -30836,3 +30836,5 @@ Invalid `prisma.user.findMany()` invocation:
 }
 
 Unknown argument `last name`. Did you mean `last_name`? Available options are marked with ?.
+[2026-01-23T12:55:46.538Z] total is not defined
+[2026-01-23T12:55:46.573Z] total is not defined

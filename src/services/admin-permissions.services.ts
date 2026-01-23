@@ -9,6 +9,7 @@
  * All database interactions are handled via Prisma.
  */
 
+import { Roles } from "../enums/enums.js";
 import prisma from "../lib/prisma.client.js"
 import type { GrantPermissionParams, GrantRolesParams, paginationParams } from "../types/admin-permissions.types.js"
 import type { serviceResponse, TargetParams } from "../types/common.types.js"
@@ -267,14 +268,110 @@ export const grantRolesService = async (reqBody: GrantRolesParams): Promise<serv
  * @description Fetch all Roles from the database
  * @returns {Promise<serviceResponse>}
  */
-export const fetchUsersWithRolesService = async (param: string, reqQuery: paginationParams): Promise<serviceResponse> => {
+export const fetchUsersWithRolesService = async (
+    param: string,
+    reqQuery: paginationParams
+): Promise<serviceResponse> => {
     try {
-        let { page, sort_by, sort_order, limit } = reqQuery;
+        const { page, sort_by, sort_order, limit, search } = reqQuery;
+        const offset = (page - 1) * limit;
+
+        // 🔹 Base filters
+        const where: any = {
+            roles: {
+                none: { role: { name: Roles.SUPER_ADMIN } }
+            }
+        };
+
+        // 🔹 Role filter (if not ALL)
+        if (param !== 'ALL') {
+            where.roles = {
+                ...where.roles,
+                some: { role: { name: param } }
+            };
+        }
+
+        // 🔹 Search filter
+        if (search) {
+            where.OR = [
+                { first_name: { startsWith: search } },
+                { last_name: { startsWith: search } },
+                { username: { startsWith: search } },
+                { email: { startsWith: search } }
+            ];
+        }
+
+        // 🔹 Query users
+        const [listUsers, totalRecords] = await Promise.all([
+            prisma.user.findMany({
+                select: {
+                    id: true,
+                    first_name: true,
+                    last_name: true,
+                    username: true,
+                    email: true,
+                    roles: { select: { role: { select: { id: true, name: true } } } }
+                },
+                where,
+                skip: offset,
+                take: limit,
+                orderBy: { [sort_by]: sort_order }
+            }),
+
+            prisma.user.count({ where })
+        ]);
+
+        if (!listUsers.length) {
+            return {
+                success: true,
+                message: "Users do not exist currently",
+                data: { users: [] }
+            };
+        }
+
+        const users = listUsers.map(user => ({
+            id: user.id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            username: user.username,
+            email: user.email,
+            roles: user.roles.map(r => r.role.name)
+        }));
+
+        const totalPages = Math.ceil(totalRecords / limit);
+
+        return {
+            success: true,
+            message: `List of ${param}`,
+            data: {
+                users,
+                data_details: {
+                    current: page,
+                    total_data: users.length,
+                    total_records: totalRecords,
+                    from: offset + 1,
+                    to: Math.min(offset + limit, totalRecords),
+                    total_pages: totalPages,
+                    limit,
+                    sort_by,
+                    sort_order: sort_order.toUpperCase()
+                }
+            }
+        };
+    } catch (error) {
+        throw error;
+    }
+};
+
+
+/**export const fetchUsersWithRolesService = async (param: string, reqQuery: paginationParams): Promise<serviceResponse> => {
+    try {
+        let { page, sort_by, sort_order, limit, search } = reqQuery;
         const pageSize = 10;
         const offset = (page - 1) * limit;
         let listUsers = []
-        let total
-        console.log({ page, sort_by, sort_order, param, limit })
+        let totalRecords
+        console.log({ page, sort_by, sort_order, param, limit, search })
 
         if (param == 'ALL') {
             listUsers = await prisma.user.findMany({
@@ -289,9 +386,58 @@ export const fetchUsersWithRolesService = async (param: string, reqQuery: pagina
                 },
                 skip: offset,
                 take: limit,
-                orderBy: { [sort_by]: sort_order }
-            })
-            total = await prisma.user.count();
+                orderBy: { [sort_by]: sort_order },
+                where: {
+                    AND: [
+                        {
+                            roles: {
+                                none: {
+                                    role: {
+                                        name: Roles.SUPER_ADMIN
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            OR: [
+                                { first_name: { startsWith: search } },
+                                { last_name: { startsWith: search } },
+                                { username: { startsWith: search } },
+                                { email: { startsWith: search } }
+                            ]
+                        }
+                    ]
+                }
+            });
+            if (search) {
+                console.log('in search')
+                totalRecords = await prisma.user.count({
+                    where: {
+                        roles: {
+                            none: {
+                                role: { name: Roles.SUPER_ADMIN }
+                            }
+                        },
+                        OR: [
+                            { first_name: { startsWith: search } },
+                            { last_name: { startsWith: search } },
+                            { username: { startsWith: search } },
+                            { email: { startsWith: search } }
+                        ]
+                    }
+                });
+            } else {
+                console.log('not in search')
+                totalRecords = await prisma.user.count({
+                    where: {
+                        roles: {
+                            none: {
+                                role: { name: Roles.SUPER_ADMIN }
+                            }
+                        }
+                    }
+                });
+            }
         } else {
             listUsers = await prisma.user.findMany({
                 where: {
@@ -303,28 +449,73 @@ export const fetchUsersWithRolesService = async (param: string, reqQuery: pagina
                                 }
                             }
                         }
-                    }
+                    },
+                    OR: [
+                        { first_name: { startsWith: search } },
+                        { last_name: { startsWith: search } },
+                        { username: { startsWith: search } },
+                        { email: { startsWith: search } }
+                    ]
                 },
                 include: { roles: { select: { role: { select: { name: true, id: true } } } } },
                 skip: offset,
                 take: limit,
-                orderBy: { [sort_by]: sort_order }
+                orderBy: { [sort_by]: sort_order },
+
             }
             )
 
-            total = await prisma.user.count({
-                where: {
-                    roles: {
-                        some: {              // User_RoleListRelationFilter
-                            role: {
-                                is: {          // THIS is invalid in your schema because `role` is a single object, not a list
-                                    name: param
+            if (search) {
+                totalRecords = await prisma.user.count({
+                    where: {
+                        AND: [
+                            {
+                                roles: {
+                                    some: {
+                                        role: { name: param }
+                                    }
+                                }
+                            },
+                            {
+                                roles: {
+                                    none: {
+                                        role: { name: Roles.SUPER_ADMIN }
+                                    }
                                 }
                             }
-                        }
+                        ],
+                        OR: [
+                            { first_name: { startsWith: search } },
+                            { last_name: { startsWith: search } },
+                            { username: { startsWith: search } },
+                            { email: { startsWith: search } }
+                        ]
                     }
-                },
-            });
+                });
+            }
+            else {
+
+                totalRecords = await prisma.user.count({
+                    where: {
+                        AND: [
+                            {
+                                roles: {
+                                    some: {
+                                        role: { name: param }
+                                    }
+                                }
+                            },
+                            {
+                                roles: {
+                                    none: {
+                                        role: { name: Roles.SUPER_ADMIN }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                });
+            }
         }
         // Handle case where no roles exist
         if (listUsers.length === 0) {
@@ -343,9 +534,9 @@ export const fetchUsersWithRolesService = async (param: string, reqQuery: pagina
             // roleIds: user.roles.map(r => r.role.id),
             roles: user.roles.map(r => r.role.name),
         }))
-        const totalPages = Math.ceil(total / limit);
+        const totalPages = Math.ceil(totalRecords / limit);
         const from = offset + 1;
-        const to = Math.min(offset + limit, total);
+        const to = Math.min(offset + limit, totalRecords);
         return {
             success: true,
             message: `List of ${param}`,
@@ -353,7 +544,8 @@ export const fetchUsersWithRolesService = async (param: string, reqQuery: pagina
                 users: cleanResponse,
                 data_details: {
                     current: page,
-                    total_data: total,
+                    total_data: listUsers.length,
+                    total_records: totalRecords,
                     from,
                     to,
                     total_pages: totalPages,
@@ -379,4 +571,4 @@ export const fetchUsersWithRolesService = async (param: string, reqQuery: pagina
         // Re-throw the error to be handled by a global error handler
         throw error
     }
-}
+} */

@@ -36,6 +36,7 @@ export const listUsers = async (req, res) => {
             sort_by: req.query.sort_by || 'id',
             sort_order: (req.query.sort_order?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
             limit: req.query.limit ? parseInt(req.query.limit, 10) : 10,
+            search: req.query.search || ''
         };
         const result = await listUsersService(reqQuery);
         if (!result.success) {
@@ -158,6 +159,7 @@ export const fetchUsersWithRoles = async (req, res) => {
             sort_by: req.query.sort_by || 'id',
             sort_order: (req.query.sort_order?.toLowerCase() == 'desc' ? 'desc' : 'asc'),
             limit: req.query.limit ? parseInt(req.query.limit, 10) : 10,
+            search: req.query.search || '',
         };
         const result = await fetchUsersWithRolesService(param, reqQuery);
         if (!result.success) {

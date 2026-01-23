@@ -20,5 +20,6 @@ export interface paginationParams {
     sort_by: 'id' | 'first_name' | 'last_name' | 'username' | 'email';
     sort_order: "asc" | "desc";
     limit: number;
+    search: string;
 }
 //# sourceMappingURL=admin-permissions.types.d.ts.map
